@@ -70,6 +70,11 @@ char power_b2[5][30] = { "run\\po1.bmp", "run\\po2.bmp", "run\\po3.bmp", "run\\p
 bool power_bb = false,power_bb_first=false;
 int power_bb_ind = 0,power_bb_ind2=0,ind_cord_x=120;
 
+char vanish_bp[8][30] = { "run\\bp1.bmp", "run\\bp2.bmp", "run\\bp3.bmp", "run\\bp4.bmp", "run\\bp5.bmp", "run\\bp6.bmp", "run\\bp7.bmp", "run\\bp8.bmp"};
+char vanish_bp_po[6][30] = { "run\\bp9.bmp", "run\\bp10.bmp", "run\\bp11.bmp", "run\\bp12.bmp", "run\\bp13.bmp", "run\\bp14.bmp" };
+bool vanish_bp_fl = false,vanish_bp_fl_1=false;
+int vanish_ind1 = 0, vanish_ind2 = 0, vanish_cord_x = 120;
+
 void iDraw()
 {
 	iClear();
@@ -118,6 +123,14 @@ void iDraw()
 			iShowBMP2(demon_cordX, demon_cordY, power_b[power_bb_ind], 0);
 		else
 			iShowBMP2(demon_cordX+ind_cord_x, demon_cordY, power_b2[power_bb_ind2], 0);
+	}
+	if (vanish_bp_fl){
+		if (vanish_bp_fl_1){
+			iShowBMP2(demon_cordX, demon_cordY,vanish_bp[vanish_ind1],0);
+		}
+		else{
+			iShowBMP2(demon_cordX + vanish_cord_x, demon_cordY, vanish_bp_po[vanish_ind2], 0);
+		}
 	}
 }
 
@@ -170,8 +183,13 @@ void iKeyboard(unsigned char key)
 	else if (key == 's'){
 		y -= 10;
 	}
-	else if (key == 'a'){
-		x -= 10;
+	if (key == 'f'){
+		if (!vanish_bp_fl){
+			vanish_bp_fl = true;
+			vanish_bp_fl_1 = true;
+			fl = false;
+			standposs = false;
+		}
 	}
 	if (key == 'v'){
 		if (!power_bb){
@@ -266,6 +284,16 @@ void iSpecialKeyboard(unsigned char key)
 	}
 }
 void change(){
+	if (vanish_bp_fl){
+		jumpup = false;
+		if (vanish_bp_fl_1){
+			vanish_ind1++;
+		}
+		else{
+			vanish_cord_x += 120;
+			vanish_ind2++;
+		}
+	}
 	if (power_bb){
 		if (power_bb_first){
 			power_bb_ind++;
@@ -299,6 +327,7 @@ void change(){
 	}
 	if (dem_sur1){
 		standposs = false;
+		jumpup = false;
 		dem_ind++;
 	}
 	if (sur_sock_fl){
@@ -392,6 +421,18 @@ void change(){
 		ind_cord_x = 120;
 		power_bb = false;
 		power_bb_ind2 = 0;
+		fl = true;
+		standposs = true;
+	}
+	if (vanish_ind1 >= 8){
+		vanish_ind1 = 0;
+		vanish_bp_fl_1 = false;
+	}
+	if (vanish_ind2 >= 6){
+		vanish_ind2 = 0;
+		vanish_cord_x = 120;
+		vanish_bp_fl = false;
+		fl = true;
 		standposs = true;
 	}
 
