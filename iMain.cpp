@@ -75,6 +75,16 @@ char vanish_bp_po[6][30] = { "run\\bp9.bmp", "run\\bp10.bmp", "run\\bp11.bmp", "
 bool vanish_bp_fl = false,vanish_bp_fl_1=false;
 int vanish_ind1 = 0, vanish_ind2 = 0, vanish_cord_x = 120;
 
+char fb_arr[6][30] = { "run\\fb1.bmp","run\\fb2.bmp", "run\\fb3.bmp", "run\\fb4.bmp", "run\\fb5.bmp", "run\\fb6.bmp" };
+char fb_arr2[3][30] = { "run\\fb7.bmp", "run\\fb8.bmp", "run\\fb9.bmp" };
+bool fb_arr_fl = false,fb_arr_fl_sr=false;
+int ind_fb1 = 0, ind_fb2 = 0,fb_cord_x=200;
+
+char leg_p[5][30] = { "lgp\\lgp1.bmp", "lgp\\lgp2.bmp", "lgp\\lgp3.bmp", "lgp\\lgp4.bmp", "lgp\\lgp5.bmp" };
+char leg_p_b[7][30] = { "lgp\\lgpb1.bmp", "lgp\\lgpb2.bmp", "lgp\\lgpb3.bmp", "lgp\\lgpb4.bmp", "lgp\\lgpb5.bmp", "lgp\\lgpb6.bmp", "lgp\\lgpb7.bmp"};
+bool leg_p_fl = false, leg_p_fl_1 = false;
+int leg_p_ind0 = 0, leg_p_ind2 = 0, lg_cordx = 120;
+
 void iDraw()
 {
 	iClear();
@@ -132,6 +142,22 @@ void iDraw()
 			iShowBMP2(demon_cordX + vanish_cord_x, demon_cordY, vanish_bp_po[vanish_ind2], 0);
 		}
 	}
+	if (fb_arr_fl){
+		if (fb_arr_fl_sr){
+			iShowBMP2(demon_cordX, demon_cordY, fb_arr[ind_fb1], 0);
+		}
+		else{
+			iShowBMP2(demon_cordX + fb_cord_x, demon_cordY, fb_arr2[ind_fb2], 0);
+		}
+	}
+	if (leg_p_fl){
+		if (leg_p_fl_1){
+			iShowBMP2(demon_cordX, demon_cordY, leg_p[leg_p_ind0], 0);
+		}
+		else{
+			iShowBMP2(demon_cordX+lg_cordx, demon_cordY+80, leg_p_b[leg_p_ind2], 0);
+		}
+	}
 }
 
  
@@ -178,10 +204,20 @@ void iKeyboard(unsigned char key)
 {
 	if (key == 'w')
 	{
-		y += 10;
+		if (!leg_p_fl){
+			leg_p_fl = true;
+			leg_p_fl_1 = true;
+			fl = false;
+			standposs = false;
+		}
 	}
-	else if (key == 's'){
-		y -= 10;
+	if (key == 's'){
+		if (!fb_arr_fl){
+			fb_arr_fl = true;
+			fb_arr_fl_sr = true;
+			fl = false;
+			standposs = false;
+		}
 	}
 	if (key == 'f'){
 		if (!vanish_bp_fl){
@@ -284,6 +320,26 @@ void iSpecialKeyboard(unsigned char key)
 	}
 }
 void change(){
+	if (leg_p_fl){
+		standposs = false;
+		if (leg_p_fl_1){
+			leg_p_ind0++;
+		}
+		else{
+			lg_cordx += 120;
+			leg_p_ind2++;
+		}
+	}
+	if (fb_arr_fl){
+		jumpup = false;
+		if (fb_arr_fl_sr){
+			ind_fb1++;
+		}
+		else{
+			fb_cord_x += 200;
+			ind_fb2++;
+		}
+	}
 	if (vanish_bp_fl){
 		jumpup = false;
 		if (vanish_bp_fl_1){
@@ -435,11 +491,30 @@ void change(){
 		fl = true;
 		standposs = true;
 	}
-
+	if (ind_fb1 >= 6){
+		ind_fb1 = 0;
+		fb_arr_fl_sr= false;
+	}if (ind_fb2 >= 3){
+		ind_fb2 = 0;
+		fb_cord_x= 200;
+		fb_arr_fl = false;
+		fl = true;
+		standposs = true;
+	}
+	if (leg_p_ind0>=5){
+		leg_p_ind0 = 0;
+		leg_p_fl_1 = false;
+	}if (leg_p_ind2>=7){
+		lg_cordx = 120;
+		leg_p_fl = false;
+		leg_p_ind2 = 0;
+		fl = true;
+		standposs = true;
+	}
 }
 int main()
 {
-	iSetTimer(100,change);
+	iSetTimer(300,change);
 	iInitialize(1200, 800, "hills");
 	///updated see the documentations
 	iStart();
