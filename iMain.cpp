@@ -6,6 +6,8 @@ using namespace std;
 #define screenHight 600
 #define jumplim 552
 #define supra 552
+#define lower_sp 15
+#define upper_sp 8
 int x = 0;
 int y = 0;
 int musicOn = true;
@@ -85,77 +87,140 @@ char leg_p_b[7][30] = { "lgp\\lgpb1.bmp", "lgp\\lgpb2.bmp", "lgp\\lgpb3.bmp", "l
 bool leg_p_fl = false, leg_p_fl_1 = false;
 int leg_p_ind0 = 0, leg_p_ind2 = 0, lg_cordx = 120;
 
+char thunder_power[4][30] = { "lgp\\th1.bmp", "lgp\\th2.bmp", "lgp\\th3.bmp", "lgp\\th4.bmp"};
+char thunder_power_sr[3][30] = { "lgp\\th7.bmp", "lgp\\th6.bmp", "lgp\\th5.bmp"};
+bool thunder_fl = false, thunder_fl_1 = false;
+int th_ind_1 = 0, th_ind_2 = 0,th_cordx=30;
+
+char thunder_power1[4][30] = { "lgp\\th8.bmp", "lgp\\th9.bmp", "lgp\\th10.bmp", "lgp\\th11.bmp" };
+char thunder_power_sr1[6][30] = { "lgp\\th12.bmp", "lgp\\th13.bmp", "lgp\\th14.bmp","lgp\\th15.bmp","lgp\\th16.bmp","lgp\\th17.bmp" };
+bool thunder_fl1 = false, thunder_fl_11 = false;
+int th_ind_11 = 0, th_ind_22 = 0, th_cordx_1 = 30;
+
+
+char blade_po[13][30] = { "lgp\\bl_p1.bmp", "lgp\\bl_p2.bmp", "lgp\\bl_p3.bmp", "lgp\\bl_p4.bmp", "lgp\\bl_p5.bmp", "lgp\\bl_p6.bmp", "lgp\\bl_p7.bmp", "lgp\\bl_p8.bmp", "lgp\\bl_p9.bmp", "lgp\\bl_p10.bmp", "lgp\\bl_p11.bmp", "lgp\\bl_p12.bmp", "lgp\\bl_p13.bmp"};
+bool blade_pl_fl = false;
+int ind_blade_pl = 0;
+
+bool backer = true, back_ran = false;
+
+float x_cord_b= 0.0,x_cord_lo_b=0.0;
+
+bool homepage = true;
+bool musicon_home = true;
+bool music_game = false;
+int cnt = 0;
 void iDraw()
 {
 	iClear();
-	iShowBMP(0, 0, "image\\back_gr_gm.bmp");
-	if (jumpup){
+	if (homepage){
+		iShowBMP(0, 0,"bci\\menu.bmp");
+		iShowBMP2(780, 610, "bci\\button1.bmp",0);
+		iShowBMP2(780, 450, "bci\\button2.bmp", 0);
+		iShowBMP2(780, 290, "bci\\button3.bmp", 0);
+		iShowBMP2(780, 130, "bci\\button4.bmp", 0);
+	}
+	else{
+		iShowImage(x_cord_b, 194, 1700, 606, a);
+		iShowImage(x_cord_b + 1700, 194, 1700, 606, a);
+		iShowImage(x_cord_lo_b, 0, 1700, 194, b);
+		iShowImage(x_cord_lo_b + 1700, 0, 1700, 194, b);
+		if (!standposs){
+			x_cord_b -= .8;
+			if (x_cord_b <= -1700)
+				x_cord_b = 0;
+			x_cord_lo_b -= 4;
+			if (x_cord_lo_b <= -1700)
+				x_cord_lo_b = 0;
+		}
+		if (jumpup){
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, jump_up[ind_jm_up], 0);
 		}
-		if(jumpdown){
-			cout << "This is from the jump cord " << ind_jm_dw << endl;
+		if (jumpdown){
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, jump_down[ind_jm_dw], 0);
 		}
-	if (fl){
+		if (fl){
+			back_ran = true;
 			if (!standposs){
 				iShowBMP2(demon_cordX, demon_cordY, demon[demon_ind], 0);
 			}
 		}
-	if (standposs){
+		if (standposs){
+			back_ran = false;
 			iShowBMP2(demon_cordX, demon_cordY, demon_stand, 0);
-	}
-	if (demon_supra){
-		if (demon_spup){
-			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, demon_sp1[supra1], 0);
+		}
+		if (demon_supra){
+			if (demon_spup){
+				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, demon_sp1[supra1], 0);
 			}
-		else
-		{
-			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, demon_sp2[supra2], 0);
+			else
+			{
+				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, demon_sp2[supra2], 0);
+			}
 		}
-	}
-	if (dem_pow1){
-		iShowBMP2(demon_cordX+pow_x, 0, dem_pow[pow_ind], 0);
-	}
-	if (dem_sur1){
-		iShowBMP2(demon_cordX, demon_cordY,dem_sur[dem_ind],0);
-	}
-	if (sur_sock_fl){
-		iShowBMP2(demon_cordX +dem_sur_x, demon_cordY,sur_sock[sur_sock1],0);
-	}
-	if (over_jump1){
-		iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x , over_jump[over_jump_ind], 0);
-	}
-	if (over_down1){
-		iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, over_dowm[over_dowm_jm], 0);
-	}
-	if (power_bb){
-		if (power_bb_first)
-			iShowBMP2(demon_cordX, demon_cordY, power_b[power_bb_ind], 0);
-		else
-			iShowBMP2(demon_cordX+ind_cord_x, demon_cordY, power_b2[power_bb_ind2], 0);
-	}
-	if (vanish_bp_fl){
-		if (vanish_bp_fl_1){
-			iShowBMP2(demon_cordX, demon_cordY,vanish_bp[vanish_ind1],0);
+		if (dem_pow1){
+			iShowBMP2(demon_cordX + pow_x, 0, dem_pow[pow_ind], 0);
 		}
-		else{
-			iShowBMP2(demon_cordX + vanish_cord_x, demon_cordY, vanish_bp_po[vanish_ind2], 0);
+		if (dem_sur1){
+			iShowBMP2(demon_cordX, demon_cordY, dem_sur[dem_ind], 0);
 		}
-	}
-	if (fb_arr_fl){
-		if (fb_arr_fl_sr){
-			iShowBMP2(demon_cordX, demon_cordY, fb_arr[ind_fb1], 0);
+		if (sur_sock_fl){
+			iShowBMP2(demon_cordX + dem_sur_x, demon_cordY, sur_sock[sur_sock1], 0);
 		}
-		else{
-			iShowBMP2(demon_cordX + fb_cord_x, demon_cordY, fb_arr2[ind_fb2], 0);
+		if (over_jump1){
+			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, over_jump[over_jump_ind], 0);
 		}
-	}
-	if (leg_p_fl){
-		if (leg_p_fl_1){
-			iShowBMP2(demon_cordX, demon_cordY, leg_p[leg_p_ind0], 0);
+		if (over_down1){
+			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, over_dowm[over_dowm_jm], 0);
 		}
-		else{
-			iShowBMP2(demon_cordX+lg_cordx, demon_cordY+80, leg_p_b[leg_p_ind2], 0);
+		if (power_bb){
+			if (power_bb_first)
+				iShowBMP2(demon_cordX, demon_cordY, power_b[power_bb_ind], 0);
+			else
+				iShowBMP2(demon_cordX + ind_cord_x, demon_cordY, power_b2[power_bb_ind2], 0);
+		}
+		if (vanish_bp_fl){
+			if (vanish_bp_fl_1){
+				iShowBMP2(demon_cordX, demon_cordY, vanish_bp[vanish_ind1], 0);
+			}
+			else{
+				iShowBMP2(demon_cordX + vanish_cord_x, demon_cordY, vanish_bp_po[vanish_ind2], 0);
+			}
+		}
+		if (fb_arr_fl){
+			if (fb_arr_fl_sr){
+				iShowBMP2(demon_cordX, demon_cordY, fb_arr[ind_fb1], 0);
+			}
+			else{
+				iShowBMP2(demon_cordX + fb_cord_x, demon_cordY, fb_arr2[ind_fb2], 0);
+			}
+		}
+		if (leg_p_fl){
+			if (leg_p_fl_1){
+				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, leg_p[leg_p_ind0], 0);
+			}
+			else{
+				iShowBMP2(demon_cordX + lg_cordx, demon_cordY + demon_jump_cord_x + 80, leg_p_b[leg_p_ind2], 0);
+			}
+		}
+		if (thunder_fl){
+			if (thunder_fl_1){
+				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, thunder_power[th_ind_1], 0);
+			}
+			else{
+				iShowBMP2(demon_cordX + th_cordx, 0, thunder_power_sr[th_ind_2], 0);
+			}
+		}
+		if (thunder_fl1){
+			if (thunder_fl_11){
+				iShowBMP2(demon_cordX, demon_cordY, thunder_power1[th_ind_11], 0);
+			}
+			else{
+				iShowBMP2(demon_cordX + th_cordx_1, demon_cordY, thunder_power_sr1[th_ind_22], 0);
+			}
+		}
+		if (blade_pl_fl){
+			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, blade_po[ind_blade_pl], 0);
 		}
 	}
 }
@@ -176,23 +241,28 @@ void iPassiveMouseMove(int mx, int my)
 {
 
 }
+void music_play_game(){
+	if (homepage){
+		PlaySound("bci\\home.wav", NULL, SND_LOOP | SND_ASYNC);
+	}
+	else{
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+	}
+}
 
 void iMouse(int button, int state, int mx, int my)
 {
-	/*
-	
+	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 644 && my <= 738)){
+		homepage = false;
+		musicon_home = false;
+		music_play_game();
+	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		x = mx - 150;
-		y = my - 20;
 	}
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
-		r = 255;
-		b = 0;
-		g = 0;
 	}
-	*/
 }
 
 /*
@@ -202,6 +272,32 @@ key- holds the ASCII value of the key pressed.
 
 void iKeyboard(unsigned char key)
 {
+	if (key == 'p '){
+		standposs = true;
+	}
+	if (key == 'a'){
+		if (!blade_pl_fl){
+			blade_pl_fl = true;
+			fl = false;
+			standposs = false;
+		}
+	}
+	if (key == 'd'){
+		if (!thunder_fl1){
+			thunder_fl1 = true;
+			thunder_fl_11 = true;
+			fl = false;
+			standposs = false;
+		}
+	}
+	if (key == 'e'){
+		if (!thunder_fl){
+			thunder_fl = true;
+			thunder_fl_1 = true;
+			fl = false;
+			standposs = false;
+		}
+	}
 	if (key == 'w')
 	{
 		if (!leg_p_fl){
@@ -281,10 +377,12 @@ void iSpecialKeyboard(unsigned char key)
 {
 	if (key == GLUT_KEY_RIGHT)
 	{
-
+		back_ran = true;
 		demon_cordX += 100;
 
 		demon_ind++;
+		if (demon_cordY + demon_cordX >= 1700)
+			demon_cordX = 0;
 		if (demon_ind >= 6)
 			demon_ind = 0;
 
@@ -293,8 +391,12 @@ void iSpecialKeyboard(unsigned char key)
 	}
 	else if (key == GLUT_KEY_LEFT)
 	{
+		back_ran = true;
 		demon_cordX -= 50;
 		
+		if (demon_cordX <= 0){
+			demon_cordX = 0;
+		}
 		demon_ind-- ;
 		if (demon_ind < 0)
 			demon_ind = 5;
@@ -320,8 +422,41 @@ void iSpecialKeyboard(unsigned char key)
 	}
 }
 void change(){
+	if (homepage == 0){
+		cnt++;
+	}
+	if (cnt == 4){
+		PlaySound("bci\\game.wav", NULL, SND_LOOP | SND_ASYNC);
+	}
+	if (blade_pl_fl){
+		standposs = false;
+		fl = false;
+		jumpup = false;
+		ind_blade_pl++;
+	}
+	if (thunder_fl1){
+		jumpup = false;
+		if (thunder_fl_11){
+			th_ind_11++;
+		}
+		else{
+			th_cordx_1 += 150;
+			th_ind_22++;
+		}
+	}
+	if (thunder_fl){
+		standposs = false;
+		if (thunder_fl_1){
+			th_ind_1++;
+		}
+		else{
+			th_cordx += 30;
+			th_ind_2++;
+		}
+	}
 	if (leg_p_fl){
 		standposs = false;
+		jumpup = false;
 		if (leg_p_fl_1){
 			leg_p_ind0++;
 		}
@@ -511,12 +646,43 @@ void change(){
 		fl = true;
 		standposs = true;
 	}
+	if (th_ind_1 >= 4){
+		th_ind_1 = 0;
+		thunder_fl_1 = false;
+	}if (th_ind_2 >= 3){
+		th_ind_2 = 0;
+		th_cordx = 30;
+		thunder_fl = false;
+		fl = true;
+		standposs = true;
+	}
+	if (th_ind_11 >= 4){
+		th_ind_11 = 0;
+		thunder_fl_11 = false;
+	}if (th_ind_22>=6){
+		th_cordx_1 = 30;
+		th_ind_22 = 0;
+		thunder_fl1 = false;
+		fl = true;
+		standposs = true;
+	}
+	if (ind_blade_pl >= 13){
+		ind_blade_pl = 0;
+		blade_pl_fl = false;
+		fl = true;
+		standposs = true;
+	}
 }
 int main()
 {
-	iSetTimer(300,change);
-	iInitialize(1200, 800, "hills");
+	iSetTimer(200, change);
+	iInitialize(1700, 800,"hills");
+	a = iLoadImage("./bci/backgr1.jpg");
+	b = iLoadImage("./bci/bg_lower.jpg");
 	///updated see the documentations
+	if (musicon_home){
+		PlaySound("bci\\home.wav", NULL, SND_LOOP | SND_ASYNC);
+	}
 	iStart();
 	return 0;
 }
