@@ -1,0 +1,11 @@
+﻿Build started 1/21/2024 9:46:08 PM.
+     1>Project "C:\Users\88013\documents\visual studio 2013\Projects\hills\hills\hills.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt iMain.cpp
+         iMain.cpp
+     1>c:\users\88013\documents\visual studio 2013\projects\hills\hills\imain.cpp(554): error C2143: syntax error : missing ';' before 'for'
+     1>Done Building Project "C:\Users\88013\documents\visual studio 2013\Projects\hills\hills\hills.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:03.66
