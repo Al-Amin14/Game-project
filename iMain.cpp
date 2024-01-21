@@ -106,10 +106,61 @@ bool backer = true, back_ran = false;
 
 float x_cord_b= 0.0,x_cord_lo_b=0.0;
 
+int cnt1 = 0;
+int cnt2 = 0;
+int cnt3 = 0;
+int cnt4 = 0;
+int cnt5 = 0;
+bool level_st_2 = false;
+bool level_st_1 = false;
+bool instruction_page = false;
 bool homepage = true;
+bool high_score_page = false;
 bool musicon_home = true;
 bool music_game = false;
 int cnt = 0;
+
+struct enemy_1{
+	int enemy_cord_x = 0;
+	int enemy_cord_y = 0;
+	int enemy_ind = 0;
+	bool enemy_show;
+};
+
+enemy_1 ene[3];
+char enem[4][30] = { "bci\\fir1.bmp", "bci\\fir2.bmp", "bci\\fir3.bmp", "bci\\fir4.bmp"};
+
+bool boom = true;
+void enemy_1_show(){
+	for (int i = 0; i < 3; i++){
+	   	// collition part at GROUND means (jokhon character ground a thakbay mani no jump)
+		if (jumpup == false && jumpdown == false && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>0 && ene[i].enemy_cord_y < 270)){
+			boom = true;
+			if (boom)
+			iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y,"bci\\boom1.bmp",0);
+			boom = false;
+			ene[i].enemy_show = false;
+		}
+		// collition part jonkon player jump obostay thakbay
+		int cn = demon_jump_cord_x + 270;
+		if ((jumpup == true || jumpdown == true) && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>demon_jump_cord_x && ene[i].enemy_cord_y <cn)){
+			boom = true;
+			if (boom)
+				iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y, "bci\\boom1.bmp", 0);
+			boom = false;
+			ene[i].enemy_show = false;
+		}
+		if (ene[i].enemy_show)
+
+			iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y, enem[ene[i].enemy_ind], 0);
+		}
+}
+
+char run_back[6][30] = { "bci\\rb1.bmp", "bci\\rb2.bmp", "bci\\rb3.bmp", "bci\\rb4.bmp", "bci\\rb5.bmp", "bci\\rb6.bmp" };
+bool rum_back_fl = false;
+int run_back_ind = 0;
+bool run_forward = false;
+
 void iDraw()
 {
 	iClear();
@@ -119,6 +170,17 @@ void iDraw()
 		iShowBMP2(780, 450, "bci\\button2.bmp", 0);
 		iShowBMP2(780, 290, "bci\\button3.bmp", 0);
 		iShowBMP2(780, 130, "bci\\button4.bmp", 0);
+	}
+	else if (instruction_page)
+			iShowBMP(0, 0, "bci\\instruction.bmp");
+	else if(high_score_page){
+		iShowBMP(0,0, "bci\\high_page.bmp");
+	}
+	else if (level_st_1){
+		iShowBMP(0, 0, "bci\\level1.bmp");
+	}
+	else if (level_st_2){
+		iShowBMP(0, 0, "bci\\level2.bmp");
 	}
 	else{
 		iShowImage(x_cord_b, 194, 1700, 606, a);
@@ -140,13 +202,14 @@ void iDraw()
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, jump_down[ind_jm_dw], 0);
 		}
 		if (fl){
-			back_ran = true;
-			if (!standposs){
+			if (!standposs && run_forward){
 				iShowBMP2(demon_cordX, demon_cordY, demon[demon_ind], 0);
+			}
+			else if (!standposs && rum_back_fl){
+				iShowBMP2(demon_cordX, demon_cordY, run_back[run_back_ind], 0);
 			}
 		}
 		if (standposs){
-			back_ran = false;
 			iShowBMP2(demon_cordX, demon_cordY, demon_stand, 0);
 		}
 		if (demon_supra){
@@ -222,6 +285,7 @@ void iDraw()
 		if (blade_pl_fl){
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, blade_po[ind_blade_pl], 0);
 		}
+		enemy_1_show();
 	}
 }
 
@@ -251,17 +315,68 @@ void music_play_game(){
 }
 
 void iMouse(int button, int state, int mx, int my)
-{
+{    
 	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 644 && my <= 738)){
 		homepage = false;
 		musicon_home = false;
 		music_play_game();
 	}
+	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 471 && my <= 577)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		homepage = false;
+		instruction_page = true;
+		cnt3=0;
+	}
+	if (instruction_page == true && (mx >= 570 && mx <= 847) && (my >= 23 && my <= 95)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		instruction_page = false;
+		homepage = true;
+		cnt4=0;
+	}
+	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 319 && my <= 405)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		homepage = false;
+		high_score_page = true;
+		cnt5=0;
+	}
+	if (homepage == false  && high_score_page==true && (mx >= 1131 && mx <= 1423) && (my > 85 && my <= 223)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		high_score_page = false;
+		homepage = true;
+		cnt4=0;
+	}
+	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 151 && my <= 254)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		homepage = false;
+		level_st_1= true;
+		cnt2=0;
+	}
+	if (homepage == false && (mx >= 1150 && mx <= 1418) && (my >= 44 && my <= 132)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		level_st_1 = false;
+		level_st_2 = true;
+		cnt1=0;
+	}
+	
+	if (homepage == false && level_st_1 == false && (mx >=601 && mx <= 853) && (my >= 107 &&  my<=  204)){\
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		level_st_2 = false;
+		level_st_1 = true;
+		cnt2=0;
+	}
+	if (homepage == false && level_st_1 == true && (mx >= 101 && mx <= 308) && (my >= 46 && my <= 131)){
+		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
+		level_st_1 = false;
+		homepage = true;
+		cnt4=0;
+	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
+		cout <<mx<<"  "<<my<<endl;
 	}
 	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
 	{
+
 	}
 }
 
@@ -272,7 +387,8 @@ key- holds the ASCII value of the key pressed.
 
 void iKeyboard(unsigned char key)
 {
-	if (key == 'p '){
+	if (key == 'p'){
+		//fl = true;
 		standposs = true;
 	}
 	if (key == 'a'){
@@ -377,7 +493,7 @@ void iSpecialKeyboard(unsigned char key)
 {
 	if (key == GLUT_KEY_RIGHT)
 	{
-		back_ran = true;
+		run_forward = true;
 		demon_cordX += 100;
 
 		demon_ind++;
@@ -391,8 +507,9 @@ void iSpecialKeyboard(unsigned char key)
 	}
 	else if (key == GLUT_KEY_LEFT)
 	{
-		back_ran = true;
-		demon_cordX -= 50;
+		rum_back_fl = true;
+		run_forward = false;
+		demon_cordX -= 100;
 		
 		if (demon_cordX <= 0){
 			demon_cordX = 0;
@@ -421,12 +538,60 @@ void iSpecialKeyboard(unsigned char key)
 		b = 255;
 	}
 }
+
 void change(){
-	if (homepage == 0){
-		cnt++;
+	ene[0].enemy_ind++;
+	ene[1].enemy_ind++;
+	ene[2].enemy_ind++;
+	for (int i = 0; i < 3; i++){
+		if (ene[i].enemy_ind >= 4){
+			ene[i].enemy_ind=0;
+		}
 	}
-	if (cnt == 4){
-		PlaySound("bci\\game.wav", NULL, SND_LOOP | SND_ASYNC);
+
+	if (rum_back_fl){
+		run_back_ind++;
+	}0
+	for (int i = 0; i < 3; i++){
+		ene[i].enemy_cord_x -=100;
+		if (ene[i].enemy_cord_x < 0){
+			ene[i].enemy_show = true;
+			ene[i].enemy_cord_x = 1700+(500*i);
+		ene[i].enemy_cord_y =(rand() % 650)+(rand()%50);
+		}
+	}
+	if (level_st_2 == true){
+		cnt1++;
+	}
+	if (cnt1 == 3){
+		PlaySound("bci\\home.wav", NULL,SND_ASYNC);
+	}
+	if (level_st_1 == true){
+		cnt2++;
+	}
+	if (cnt2 == 3){
+		PlaySound("bci\\home.wav", NULL, SND_ASYNC);
+	}
+	if (instruction_page == true){
+		cnt3++;
+	}
+	if (cnt3 == 3){
+		PlaySound("bci\\home.wav", NULL, SND_ASYNC);
+	}
+	if (homepage == true){
+		cnt4++;
+	}
+	if (cnt4 == 4){
+		PlaySound("bci\\home.wav", NULL, SND_ASYNC);
+	}
+	if (high_score_page == true){
+		cnt5++;
+	}
+	if (cnt5 == 3){
+		PlaySound("bci\\home.wav", NULL, SND_ASYNC);
+	}
+	if (homepage == false && instruction_page == false && high_score_page == false && level_st_1 == false && level_st_2 == false){
+		cnt++;
 	}
 	if (blade_pl_fl){
 		standposs = false;
@@ -435,6 +600,7 @@ void change(){
 		ind_blade_pl++;
 	}
 	if (thunder_fl1){
+		fl = false;
 		jumpup = false;
 		if (thunder_fl_11){
 			th_ind_11++;
@@ -445,6 +611,7 @@ void change(){
 		}
 	}
 	if (thunder_fl){
+		fl = false;
 		standposs = false;
 		if (thunder_fl_1){
 			th_ind_1++;
@@ -672,9 +839,26 @@ void change(){
 		fl = true;
 		standposs = true;
 	}
+	if (cnt == 4){
+		cout << "Playing music" << endl;
+		PlaySound("bci\\game.wav", NULL, SND_LOOP | SND_ASYNC);
+	}
+	if (run_back_ind >= 6){
+		run_back_ind = 0;
+	}
 }
+
+void showing_eme(){
+	for (int i = 0; i <3; i++){
+		ene[i].enemy_cord_x = 1700+(500*i);
+		ene[i].enemy_cord_y = rand() % 650;
+		ene[i].enemy_show = true;
+	}
+}
+
 int main()
 {
+	showing_eme();
 	iSetTimer(200, change);
 	iInitialize(1700, 800,"hills");
 	a = iLoadImage("./bci/backgr1.jpg");
