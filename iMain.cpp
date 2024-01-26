@@ -120,6 +120,22 @@ bool musicon_home = true;
 bool music_game = false;
 int cnt = 0;
 
+// ----------------th_ene_3________________---------------
+typedef struct ene_third ene_third;
+struct ene_third{
+	int x = 1390, y, ind;
+};
+ene_third obj5;
+char ene_third_sh[5][30] = { "bci\\th_ene_1.bmp", "bci\\th_ene_2.bmp", "bci\\th_ene_3.bmp", "bci\\th_ene_4.bmp","bci\\th_ene_5.bmp" };
+typedef struct ene_third_balls{
+	int x;
+	int y;
+	bool fl;
+}ene_third_balls;
+ene_third_balls obj6;
+int enemy_ball_3 = 0;
+char ch_ene_dr[1][30] = { "bci\\th_ene_6.bmp" };
+//-------------------th_en_end-------------------
 struct enemy_1{
 	int enemy_cord_x = 0;
 	int enemy_cord_y = 0;
@@ -131,9 +147,10 @@ enemy_1 ene[3];
 char enem[4][30] = { "bci\\fir1.bmp", "bci\\fir2.bmp", "bci\\fir3.bmp", "bci\\fir4.bmp"};
 
 bool boom = true;
+
 void enemy_1_show(){
 	for (int i = 0; i < 3; i++){
-	   	// collition part at GROUND means (jokhon character ground a thakbay mani no jump)
+		
 		if (jumpup == false && jumpdown == false && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>0 && ene[i].enemy_cord_y < 270)){
 			boom = true;
 			if (boom)
@@ -141,7 +158,6 @@ void enemy_1_show(){
 			boom = false;
 			ene[i].enemy_show = false;
 		}
-		// collition part jonkon player jump obostay thakbay
 		int cn = demon_jump_cord_x + 270;
 		if ((jumpup == true || jumpdown == true) && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>demon_jump_cord_x && ene[i].enemy_cord_y <cn)){
 			boom = true;
@@ -161,6 +177,77 @@ bool rum_back_fl = false;
 int run_back_ind = 0;
 bool run_forward = false;
 
+//------------------------For main enemy--------------
+typedef struct main_enemy{
+	int x = 1290;
+	int y;
+	int ind;
+}main_enemy;
+char main_en_mv[5][30] = { "bci\\main_en1.bmp", "bci\\main_en2.bmp", "bci\\main_en3.bmp", "bci\\main_en4.bmp", "bci\\main_en5.bmp"};
+main_enemy obj3[1];
+typedef struct main_ball_fi{
+	int x;
+	int y;
+	int ind;
+	bool fl = false;
+}main_ball_fi;
+main_ball_fi obj4[1];
+char main_en_ball[5][30] ={ "bci\\main_f1.bmp","bci\\main_f2.bmp", "bci\\main_f3.bmp", "bci\\main_f4.bmp", "bci\\main_f5.bmp" };
+int enemy_ball_2_m = 0;
+//-------------------End Main enemy------------------
+
+typedef struct enemey_2{
+	int x=1390;
+	int y;
+	int ind;
+}enemy_2;
+char ene_2[4][30] = { "bci\\emy1.bmp", "bci\\emy2.bmp", "bci\\emy3.bmp", "bci\\emy4.bmp"};
+enemey_2 obj1[1];
+
+typedef struct enemy_ball enemy_ball;
+struct enemy_ball{
+	int x;
+	int y;
+	int ind;
+	bool bl = false;
+};
+int enemy_ball_2 = 0;
+enemy_ball obj2[1];
+
+char ene_fir_ball_2[3][30] = { "bci\\emy_ball_1.bmp", "bci\\emy_ball_2.bmp","bci\\emy_ball_3.bmp" };
+
+void show_enemy(){
+	if (obj2[0].bl==false)
+		iShowBMP2(obj1[0].x, obj1[0].y, ene_2[obj1[0].ind],0);
+	else if (obj2[0].bl){
+		obj2[0].x = obj1[0].x;
+		obj2[0].y = obj1[0].y;
+		enemy_ball_2 -= 9;
+		iShowBMP2(obj2[0].x + enemy_ball_2, obj2[0].y, ene_fir_ball_2[obj2[0].ind], 0);
+		}
+}
+void show_main_en(){
+	if (obj4[0].fl == false)
+		iShowBMP2(obj3[0].x, obj3[0].y, main_en_mv[obj3[0].ind], 0);
+	else if (obj4[0].fl){
+		obj4[0].x = obj3[0].x;
+		obj4[0].y = obj3[0].y;
+		iShowBMP2(obj4[0].x + enemy_ball_2_m, obj4[0].y, main_en_ball[obj4[0].ind], 0);
+		enemy_ball_2_m -= 9;
+	}
+}
+void show_third_en(){
+	if (obj6.fl == false)
+		iShowBMP2(obj5.x, obj5.y, ene_third_sh[obj5.ind], 0);
+	else if (obj6.fl){
+		obj6.x = obj5.x;
+		obj6.y = obj5.y;
+		iShowBMP2(obj6.x + enemy_ball_3, obj6.y, ch_ene_dr[0], 0);
+		enemy_ball_3 -= 9;
+	}
+}
+bool fl_second=true;
+bool fl_main=false;
 void iDraw()
 {
 	iClear();
@@ -286,6 +373,15 @@ void iDraw()
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, blade_po[ind_blade_pl], 0);
 		}
 		enemy_1_show();
+		
+		if (fl_second){
+			show_enemy();
+		}
+		if (fl_main){
+		   show_main_en();
+		   }
+		   
+		show_third_en();
 	}
 }
 
@@ -551,7 +647,7 @@ void change(){
 
 	if (rum_back_fl){
 		run_back_ind++;
-	}0
+	}
 	for (int i = 0; i < 3; i++){
 		ene[i].enemy_cord_x -=100;
 		if (ene[i].enemy_cord_x < 0){
@@ -855,11 +951,82 @@ void showing_eme(){
 		ene[i].enemy_show = true;
 	}
 }
+void ene_main_fix(){
+	obj3[0].y = rand() % 750;
+}
+void ene_2_fix(){
+	obj1[0].y = rand() % 750;
+}
+void emy_2_cha(){
+	if (fl_second){
+		if (obj2[0].bl == false){
+			obj1[0].ind++;
+			if (obj1[0].ind >= 4){
+				obj2[0].bl = true;
+				obj1[0].ind = 0;
+			}
+		}
+		else{
+			obj2[0].ind++;
+			if (obj2[0].ind >= 3){
+				fl_second = false;
+				fl_main = true;
+				enemy_ball_2 = 0;
+				obj2[0].ind = 0;
+				obj1[0].y = rand() % 650;
+				obj2[0].bl = false;
+			}
+		}
+	}
+}
 
+void emy_main_cha(){
+	if (fl_main){
+		if (obj4[0].fl == false){
+			obj3[0].ind++;
+			if (obj3[0].ind >= 5){
+				obj4[0].fl = true;
+				obj3[0].ind = 0;
+			}
+		}
+		else{
+			obj4[0].ind++;
+			if (obj4[0].ind >= 5){
+				fl_second = true;
+				fl_main = false;
+				enemy_ball_2_m = 0;
+				obj4[0].ind = 0;
+				obj3[0].y = rand() % 500;
+				obj4[0].fl = false;
+			}
+		}
+	}
+}
+void emy_3_cha(){
+	if (obj6.fl == false){
+		obj5.ind++;
+		if (obj5.ind >= 5){
+			obj6.fl = true;
+			obj5.ind = 0;
+		}
+	}
+	else{
+		if (enemy_ball_3<-1400){
+			enemy_ball_3 = 0;
+			obj5.y = rand() % 500;
+			obj6.fl = false;
+		}
+	}
+}
 int main()
 {
+	ene_main_fix();
+	ene_2_fix();
 	showing_eme();
-	iSetTimer(200, change);
+	iSetTimer(150, change);
+	iSetTimer(780, emy_2_cha);
+	iSetTimer(380, emy_main_cha);
+	iSetTimer(500, emy_3_cha);
 	iInitialize(1700, 800,"hills");
 	a = iLoadImage("./bci/backgr1.jpg");
 	b = iLoadImage("./bci/bg_lower.jpg");
