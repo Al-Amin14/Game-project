@@ -15,6 +15,12 @@ int r = 255;
 int g = 255;
 int b = 255;
 int a;
+int ene_3_count = 25;
+bool die_enem = false;
+int die_ind = 0;
+int count_die_cnt = 0;
+char die_showing[10][30] = { "bci\\ene_die1.bmp", "bci\\ene_die2.bmp", "bci\\ene_die3.bmp", "bci\\ene_die4.bmp", "bci\\ene_die5.bmp", "bci\\ene_die6.bmp", "bci\\ene_die7.bmp", "bci\\ene_die8.bmp", "bci\\ene_die9.bmp", "bci\\ene_die10.bmp"};
+
 char demon[6][100] = { "run\\run1.bmp", "run\\run2.bmp", "run\\run3.bmp", "run\\run4.bmp", "run\\run5.bmp", "run\\run6.bmp"};
 
 char demon_stand[15] = "run\\stand.bmp";
@@ -102,6 +108,15 @@ char blade_po[13][30] = { "lgp\\bl_p1.bmp", "lgp\\bl_p2.bmp", "lgp\\bl_p3.bmp", 
 bool blade_pl_fl = false;
 int ind_blade_pl = 0;
 
+bool show_enemy_flag = false;
+
+bool show_third_flag = false;
+
+bool show_main_flag = false;
+
+int show_enemy_cnt = 0;
+int show_thire_cnt = 0;
+int show_main_cnt = 0;
 bool backer = true, back_ran = false;
 
 float x_cord_b= 0.0,x_cord_lo_b=0.0;
@@ -120,10 +135,11 @@ bool musicon_home = true;
 bool music_game = false;
 int cnt = 0;
 
-// ----------------th_ene_3________________---------------
+// ----------------------------------------------------------------------------th_ene_3-------------------------------------------------------------------------
 typedef struct ene_third ene_third;
 struct ene_third{
 	int x = 1390, y, ind;
+	bool fl = true;
 };
 ene_third obj5;
 char ene_third_sh[5][30] = { "bci\\th_ene_1.bmp", "bci\\th_ene_2.bmp", "bci\\th_ene_3.bmp", "bci\\th_ene_4.bmp","bci\\th_ene_5.bmp" };
@@ -148,30 +164,100 @@ char enem[4][30] = { "bci\\fir1.bmp", "bci\\fir2.bmp", "bci\\fir3.bmp", "bci\\fi
 
 bool boom = true;
 
+//***********************************************************************collition part *************************************************************************************
+int x_sh, y_sh;
 void enemy_1_show(){
 	for (int i = 0; i < 3; i++){
-		
-		if (jumpup == false && jumpdown == false && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>0 && ene[i].enemy_cord_y < 270)){
-			boom = true;
-			if (boom)
-			iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y,"bci\\boom1.bmp",0);
-			boom = false;
-			ene[i].enemy_show = false;
+		if (ene[i].enemy_show == false){
+			iShowBMP2(x_sh, y_sh, "bci\\boom1.bmp", 0);
+			x_sh -= 1.5;
+			continue;
 		}
 		int cn = demon_jump_cord_x + 270;
-		if ((jumpup == true || jumpdown == true) && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>demon_jump_cord_x && ene[i].enemy_cord_y <cn)){
-			boom = true;
-			if (boom)
-				iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y, "bci\\boom1.bmp", 0);
-			boom = false;
+		if (ene[i].enemy_show && blade_pl_fl == true && (((ene[i].enemy_cord_x - demon_cordX) <= 100 && (ene[i].enemy_cord_x - demon_cordX) >= -150) || (demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 350)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && fb_arr_fl_sr == false && fb_arr_fl == true && ((ene[i].enemy_cord_x - fb_cord_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - fb_cord_x) >= -200 || (fb_cord_x + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 350)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && leg_p_fl_1 == false && leg_p_fl == true && ((ene[i].enemy_cord_x - lg_cordx - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - lg_cordx) >= -200 || (lg_cordx + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 450)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && thunder_fl_11 == false && thunder_fl1 == true && ((ene[i].enemy_cord_x - th_cordx_1 - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - th_cordx_1) >= -200 || (th_cordx_1 + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 800)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && power_bb_first == false && power_bb == true && ((ene[i].enemy_cord_x - ind_cord_x-demon_cordX-200) <= 30 && (ene[i].enemy_cord_x - ind_cord_x-demon_cordX) >= -200 || (ind_cord_x+demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 600)){
+
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && vanish_bp_fl_1 == false && vanish_bp_fl == true && ((ene[i].enemy_cord_x - vanish_cord_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - vanish_cord_x) >= -200 || (vanish_cord_x + demon_cordX - ene[i].enemy_cord_x) >= -100) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 500)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && thunder_fl_1 == false && thunder_fl == true && ((((ene[i].enemy_cord_x - th_cordx - demon_cordX - 150)) <= 900 || (th_cordx - ene[i].enemy_cord_x) >= 900)) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 500)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && jumpup == false && jumpdown == false && sur_sock_fl==true && (((ene[i].enemy_cord_x - dem_sur_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - dem_sur_x) >= -250) || (dem_sur_x + demon_cordX - ene[i].enemy_cord_x) >= 10) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 280)){
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && jumpup == false && jumpdown == false && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>0 && ene[i].enemy_cord_y < 270)){
+			cout << "Fix ing bug" << endl;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && (over_jump1 || over_down1 || jumpdown || jumpup) && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>demon_jump_cord_x && ene[i].enemy_cord_y <cn)){
+		
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+			
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && dem_ind == 3 && ((((ene[i].enemy_cord_x - pow_x-demon_cordX-150) <= 30 && (ene[i].enemy_cord_x - pow_x) >= -300) || (pow_x + demon_cordX - ene[i].enemy_cord_x) >= -70)) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 520))
+		{
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && dem_pow1 && (((ene[i].enemy_cord_x - pow_x - demon_cordX - 110) <= 30 && (ene[i].enemy_cord_x - pow_x) >= -250) || (demon_cordX + pow_x - ene[i].enemy_cord_x) >= -70) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 400))
+		{
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+
 			ene[i].enemy_show = false;
 		}
 		if (ene[i].enemy_show)
-
 			iShowBMP2(ene[i].enemy_cord_x, ene[i].enemy_cord_y, enem[ene[i].enemy_ind], 0);
 		}
 }
 
+//*********************************************************************End collitin part *************************************************************************************
 char run_back[6][30] = { "bci\\rb1.bmp", "bci\\rb2.bmp", "bci\\rb3.bmp", "bci\\rb4.bmp", "bci\\rb5.bmp", "bci\\rb6.bmp" };
 bool rum_back_fl = false;
 int run_back_ind = 0;
@@ -182,6 +268,7 @@ typedef struct main_enemy{
 	int x = 1290;
 	int y;
 	int ind;
+	bool fl=true;
 }main_enemy;
 char main_en_mv[5][30] = { "bci\\main_en1.bmp", "bci\\main_en2.bmp", "bci\\main_en3.bmp", "bci\\main_en4.bmp", "bci\\main_en5.bmp"};
 main_enemy obj3[1];
@@ -200,6 +287,7 @@ typedef struct enemey_2{
 	int x=1390;
 	int y;
 	int ind;
+	bool fl = true;
 }enemy_2;
 char ene_2[4][30] = { "bci\\emy1.bmp", "bci\\emy2.bmp", "bci\\emy3.bmp", "bci\\emy4.bmp"};
 enemey_2 obj1[1];
@@ -216,38 +304,413 @@ enemy_ball obj2[1];
 
 char ene_fir_ball_2[3][30] = { "bci\\emy_ball_1.bmp", "bci\\emy_ball_2.bmp","bci\\emy_ball_3.bmp" };
 
+//-------------------------------------------------------enemy 2nd collition -------------------------------------------------
 void show_enemy(){
-	if (obj2[0].bl==false)
-		iShowBMP2(obj1[0].x, obj1[0].y, ene_2[obj1[0].ind],0);
+	if (obj1[0].fl == true){
+		iShowBMP2(obj1[0].x, obj1[0].y, ene_2[obj1[0].ind], 0);
+		if (dem_pow1 && (obj1[0].x - pow_x - demon_cordX - 150 <= 30 && (obj1[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj1[0].x) >= 150) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{	show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (dem_pow1 && (obj1[0].x - pow_x - demon_cordX - 150 <= 30 && (obj1[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj1[0].x) >= 150) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (sur_sock_fl && ((((obj1[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj1[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj1[0].x) >= 100)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (sur_sock_fl && ((((obj1[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj1[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj1[0].x) >= 100)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+
+		else if ((over_jump1 || over_down1) && (obj1[0].x - demon_cordX - 150 <= 50 && obj1[0].x - demon_cordX >= 20 || demon_cordX - obj1[0].x >= 30) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj1[0].x - th_cordx)) <= 1400 || (th_cordx - obj1[0].x) >= 1400)) && (obj1[0].y >= 0 && obj1[0].y <= 500)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj1[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj1[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (power_bb == true && power_bb_first == false && (((obj1[0].x - ind_cord_x - demon_cordX - 300) <= 30 && (obj1[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj1[0].x) >= 0)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj1[0].x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj1[0].x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj1[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj1[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 470)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj1[0].x - fb_cord_x - demon_cordX - 150) <= 30 && (obj1[0].x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+		else if (blade_pl_fl == true && (((obj1[0].x - demon_cordX - 100) <= 30 && (obj1[0].x - demon_cordX) >= -150) || (demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+
+		}
+	}
 	else if (obj2[0].bl){
 		obj2[0].x = obj1[0].x;
 		obj2[0].y = obj1[0].y;
-		enemy_ball_2 -= 9;
-		iShowBMP2(obj2[0].x + enemy_ball_2, obj2[0].y, ene_fir_ball_2[obj2[0].ind], 0);
+		enemy_ball_2 -= 12;
+		obj2[0].x += enemy_ball_2;
+		iShowBMP2(obj2[0].x, obj2[0].y, ene_fir_ball_2[obj2[0].ind], 0);
+		if ((obj2[0].x - demon_cordX -30<= 30 && obj2[0].x - demon_cordX >=-100) && (obj2[0].y >= demon_cordY + demon_jump_cord_x-30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 250)){
+			obj2[0].bl = false;
+		}
+		else if (dem_pow1 && (obj2[0].x - pow_x - demon_cordX - 150 <= 30 && (obj2[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj2[0].x) >= 150) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj2[0].bl = false;
+		}
+		else if (dem_pow1 && (obj2[0].x - pow_x - demon_cordX - 150 <= 30 && (obj2[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj2[0].x) >= 150) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj2[0].bl = false;
+		}
+		else if (sur_sock_fl && ((((obj2[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj2[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj2[0].x) >= 100)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj2[0].bl = false;
+		}
+		else if (sur_sock_fl && ((((obj2[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj2[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj2[0].x) >= 100)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj2[0].bl = false;
+		}
+		
+		else if ((over_jump1 || over_down1) && (obj2[0].x - demon_cordX - 150 <= 50 && obj2[0].x - demon_cordX >= 20 || demon_cordX - obj2[0].x >= 30) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			obj2[0].bl = false;
+		}
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj2[0].x - th_cordx)) <= 1100 || (th_cordx - obj2[0].x) >= 1100)) && (obj2[0].y >= 0 && obj2[0].y <= 500)){
+			obj2[0].bl = false;
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj2[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj2[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			obj2[0].bl = false;
+		}
+		else if (power_bb==true && power_bb_first==false && (((obj2[0].x - ind_cord_x - demon_cordX-300) <= 30 && (obj2[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj2[0].x) >= 0)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj2[0].bl = false;
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj2[0].x - th_cordx_1-demon_cordX-200) <= 30 && (obj2[0].x - th_cordx_1-demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj2[0].x) >=0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj2[0].bl = false;
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj2[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj2[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX +100- obj2[0].x) >=0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x +470)){
+			obj2[0].bl = false;
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj2[0].x - fb_cord_x-demon_cordX-150) <= 30 && (obj2[0].x - fb_cord_x-demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj2[0].bl = false;
+		}
+		else if (blade_pl_fl == true && (((obj2[0].x - demon_cordX - 100) <= 30 && (obj2[0].x - demon_cordX) >= -150) || (demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			obj2[0].bl = false;
+		}
 		}
 }
+
+//----------------------------------------------------end ene2 end collition part--------------------------------
+
+
+//---------------------------------------------------Start of Mani enemy collition -------------------------------------
 void show_main_en(){
-	if (obj4[0].fl == false)
+	if (obj3[0].fl == true){
 		iShowBMP2(obj3[0].x, obj3[0].y, main_en_mv[obj3[0].ind], 0);
+
+		if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj3[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj3[0].x) >= 150) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj3[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj3[0].x) >= 150) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (sur_sock_fl && ((((obj3[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj3[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj3[0].x) >= 100)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (sur_sock_fl && ((((obj3[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj3[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj3[0].x) >= 100)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+
+		else if ((over_jump1 || over_down1) && (obj3[0].x - demon_cordX - 150 <= 50 && obj3[0].x - demon_cordX >= 20 || demon_cordX - obj3[0].x >= 30) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj3[0].x - th_cordx)) <= 1100 || (th_cordx - obj3[0].x) >= 1100)) && (obj3[0].y >= 0 && obj3[0].y <= 500)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj3[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj3[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (power_bb == true && power_bb_first == false && (((obj3[0].x - ind_cord_x - demon_cordX - 300) <= 30 && (obj3[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj3[0].x) >= 0)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj3[0].x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj3[0].x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj3[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj3[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 470)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj3[0].x - fb_cord_x - demon_cordX - 150) <= 30 && (obj3[0].x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (blade_pl_fl == true && (((obj3[0].x - demon_cordX - 100) <= 30 && (obj3[0].x - demon_cordX) >= -150) || (demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+
+	}
 	else if (obj4[0].fl){
 		obj4[0].x = obj3[0].x;
 		obj4[0].y = obj3[0].y;
-		iShowBMP2(obj4[0].x + enemy_ball_2_m, obj4[0].y, main_en_ball[obj4[0].ind], 0);
-		enemy_ball_2_m -= 9;
-	}
+		enemy_ball_2_m -= 16;
+		obj4[0].x += enemy_ball_2_m;
+		iShowBMP2(obj4[0].x , obj4[0].y, main_en_ball[obj4[0].ind], 0);
+		if ((obj4[0].x - demon_cordX-30 <= 30 && obj4[0].x - demon_cordX >=-100) && (obj4[0].y >= demon_cordY + demon_jump_cord_x-30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 250)){
+			obj4[0].fl = false;
+		}
+		else if ( dem_pow1 &&(obj4[0].x - pow_x-demon_cordX -150<= 30 && (obj4[0].x - pow_x-demon_cordX >= -200) || (pow_x+demon_cordX-obj4[0].x)>=150 ) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj4[0].fl = false;
+		}
+		else if (dem_pow1 && (obj4[0].x - pow_x - demon_cordX -150<= 30 && (obj4[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj4[0].x) >= 150) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj4[0].fl = false;
+		}
+		else if (sur_sock_fl && ((((obj4[0].x - dem_sur_x - demon_cordX-150) <= 30 && (obj4[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj4[0].x) >= 100)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj4[0].fl = false;
+		}
+		else if (sur_sock_fl && ((((obj4[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj4[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj4[0].x) >= 100)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj4[0].fl = false;
+		}
+		
+		else if ((over_jump1 || over_down1) && (obj4[0].x - demon_cordX - 150 <= 50 && obj4[0].x - demon_cordX >= 20 || demon_cordX - obj4[0].x >= 30) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			obj4[0].fl = false;
+		}
+		else if ( thunder_fl_1 == false && thunder_fl == true && ((((obj4[0].x - th_cordx)) <= 1100 || (th_cordx - obj4[0].x) >= 1100)) && (obj4[0].y >= 0 && obj4[0].y <= 500)){
+			obj4[0].fl = false;
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj4[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj4[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			obj4[0].fl = false;
+		}
+		else if (power_bb==true && power_bb_first==false && (((obj4[0].x - ind_cord_x - demon_cordX-300) <= 30 && (obj4[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj4[0].x) >= 0)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj4[0].fl = false;
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj4[0].x - th_cordx_1-demon_cordX-200) <= 30 && (obj4[0].x - th_cordx_1-demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj4[0].x) >=0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj4[0].fl = false;
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj4[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj4[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX +100- obj4[0].x) >=0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x +470)){
+			obj4[0].fl = false;
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj4[0].x - fb_cord_x-demon_cordX-150) <= 30 && (obj4[0].x - fb_cord_x-demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj4[0].fl = false;
+		}
+		else if (blade_pl_fl == true && (((obj4[0].x - demon_cordX - 100) <= 30 && (obj4[0].x - demon_cordX) >= -150) || (demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			obj4[0].fl = false;
+		}
+	}   
 }
+//______________________________________________________________End of Main ene collition ___________________________________________________________-----------------
+
+
+//______________________________________________________________Star of 3 ene collition_______________________________________________________________________
+
+bool thrid_coll = false;
 void show_third_en(){
-	if (obj6.fl == false)
+	if (obj5.fl){
 		iShowBMP2(obj5.x, obj5.y, ene_third_sh[obj5.ind], 0);
+		if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj5.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj5.x) >= 150) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (dem_pow1 && (obj5.x - pow_x - demon_cordX - 150 <= 30 && (obj5.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj5.x) >= 150) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (sur_sock_fl && ((((obj5.x - dem_sur_x - demon_cordX - 150) <= 30 && (obj5.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj5.x) >= 100)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 400)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (sur_sock_fl && ((((obj5.x - dem_sur_x - demon_cordX - 150) <= 30 && (obj5.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj5.x) >= 100)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 400)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+
+		else if ((over_jump1 || over_down1) && (obj5.x - demon_cordX - 150 <= 50 && obj5.x - demon_cordX >= 20 || demon_cordX - obj5.x >= 30) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 300)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj5.x - th_cordx)) <= 1100 || (th_cordx - obj5.x) >= 1100)) && (obj5.y >= 0 && obj5.y <= 500)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj5.x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj5.x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (power_bb == true && power_bb_first == false && (((obj5.x - ind_cord_x - demon_cordX - 300) <= 30 && (obj5.x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj5.x) >= 0)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 650)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj5.x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj5.x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 650)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj5.x - lg_cordx - demon_cordX - 150) <= 30 && (obj5.x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 470)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj5.x - fb_cord_x - demon_cordX - 150) <= 30 && (obj5.x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 350)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+		else if (blade_pl_fl == true && (((obj5.x - demon_cordX - 100) <= 30 && (obj5.x - demon_cordX) >= -150) || (demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 390)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			thrid_coll = true;
+		}
+
+	}
 	else if (obj6.fl){
 		obj6.x = obj5.x;
 		obj6.y = obj5.y;
-		iShowBMP2(obj6.x + enemy_ball_3, obj6.y, ch_ene_dr[0], 0);
-		enemy_ball_3 -= 9;
+		enemy_ball_3 -= 13;
+		obj6.x += enemy_ball_3;
+		iShowBMP2(obj6.x, obj6.y, ch_ene_dr[0], 0);
+		if ((obj6.x - demon_cordX-30 <= 30 && obj6.x - demon_cordX >= -100) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 250)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (dem_pow1 && (obj6.x - pow_x - demon_cordX -150<= 30 && (obj6.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj6.x) >= 150) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (dem_pow1 && (obj6.x - pow_x - demon_cordX-150 <= 30 && (obj6.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj6.x) >= 150) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500))
+		{
+			thrid_coll = true;
+			obj6.fl = false;
+		}
+		else if (sur_sock_fl && ((((obj6.x - dem_sur_x - demon_cordX-150) <= 30 && (obj6.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj6.x) >= 100)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (sur_sock_fl && ((((obj6.x - dem_sur_x - demon_cordX-150) <= 30 && (obj6.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj6.x) >= 100)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+
+		else if ((over_jump1 || over_down1) && (obj6.x - demon_cordX-150 <= 50 && obj6.x - demon_cordX >= 20 || demon_cordX - obj6.x >= 30) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 300)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj6.x - th_cordx)) <= 1100 || (th_cordx - obj6.x) >= 1100)) && (obj6.y >= 0 && obj6.y <= 500)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj6.x - vanish_cord_x - demon_cordX-150) <= 30 && (obj6.x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (power_bb == true && power_bb_first == false && (((obj6.x - ind_cord_x - demon_cordX - 300) <= 30 && (obj6.x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj6.x) >= 0)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj6.x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj6.x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 650)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj6.x - lg_cordx - demon_cordX - 150) <= 30 && (obj6.x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 470)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj6.x - fb_cord_x - demon_cordX - 150) <= 30 && (obj6.x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
+		else if (blade_pl_fl == true && (((obj6.x - demon_cordX - 100) <= 30 && (obj6.x - demon_cordX) >= -150) || (demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 390)){
+			obj6.fl = false;
+			thrid_coll = true;
+		}
 	}
 }
-bool fl_second=true;
-bool fl_main=false;
+
+//______________________________________________________________End of 3 ene collition_______________________________________________________________________
+
+
+
 void iDraw()
 {
 	iClear();
@@ -299,6 +762,7 @@ void iDraw()
 		if (standposs){
 			iShowBMP2(demon_cordX, demon_cordY, demon_stand, 0);
 		}
+		//--------------------------------------------------- supper power start -----------------------------------------------------------------------
 		if (demon_supra){
 			if (demon_spup){
 				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, demon_sp1[supra1], 0);
@@ -355,7 +819,7 @@ void iDraw()
 		}
 		if (thunder_fl){
 			if (thunder_fl_1){
-				iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, thunder_power[th_ind_1], 0);
+				iShowBMP2(demon_cordX, demon_cordY, thunder_power[th_ind_1], 0);
 			}
 			else{
 				iShowBMP2(demon_cordX + th_cordx, 0, thunder_power_sr[th_ind_2], 0);
@@ -372,16 +836,20 @@ void iDraw()
 		if (blade_pl_fl){
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, blade_po[ind_blade_pl], 0);
 		}
-		enemy_1_show();
 		
-		if (fl_second){
-			show_enemy();
+		//-------------------------------------------- Super power end ----- ---------------------------------------------------------------------------------
+		
+		if (die_enem){
+			iShowBMP2(1370, 0, die_showing[die_ind], 0);
 		}
-		if (fl_main){
-		   show_main_en();
-		   }
-		   
-		show_third_en();
+		enemy_1_show();
+		if (show_enemy_flag && show_third_flag==false)
+		    show_enemy();
+		else if (show_third_flag && show_enemy_flag==false){
+			show_third_en();
+		}
+		else if (show_main_flag)
+    		show_main_en();
 	}
 }
 
@@ -636,6 +1104,26 @@ void iSpecialKeyboard(unsigned char key)
 }
 
 void change(){
+	if (show_main_cnt >= 9){
+		show_main_flag = true;
+		show_third_flag = false;
+	}
+	if (show_enemy_cnt >= 5 && show_enemy_flag == false && show_third_flag == false && show_main_flag==false){
+		show_enemy_flag = true;
+	}
+	if (show_thire_cnt >= 6 && show_enemy_flag == true && die_enem == false && show_third_flag == false && show_main_flag == false){
+		die_enem = true;
+		show_enemy_flag = false;
+		show_third_flag = true;
+	}
+	if (die_enem){
+		die_ind++;
+	}if (die_ind >= 10){
+		die_enem = false;
+		die_ind = 0;
+		show_third_flag = true;
+		show_enemy_flag = false;
+	}
 	ene[0].enemy_ind++;
 	ene[1].enemy_ind++;
 	ene[2].enemy_ind++;
@@ -753,6 +1241,7 @@ void change(){
 			power_bb_ind++;
 		}
 		else{
+			cout << "Print " << ind_cord_x << endl;
 			ind_cord_x+= 120;
 			power_bb_ind2++;
 		}
@@ -872,6 +1361,7 @@ void change(){
 		power_bb_first = false;
 	}
 	if (power_bb_ind2 >= 5){
+		cout << "print " << ind_cord_x << endl;
 		ind_cord_x = 120;
 		power_bb = false;
 		power_bb_ind2 = 0;
@@ -958,60 +1448,64 @@ void ene_2_fix(){
 	obj1[0].y = rand() % 750;
 }
 void emy_2_cha(){
-	if (fl_second){
-		if (obj2[0].bl == false){
+	//if (fl_second){
+		if (obj1[0].fl == true){
 			obj1[0].ind++;
 			if (obj1[0].ind >= 4){
 				obj2[0].bl = true;
+				obj1[0].fl = false;
+				obj2[0].ind = 0;
 				obj1[0].ind = 0;
 			}
 		}
 		else{
 			obj2[0].ind++;
 			if (obj2[0].ind >= 3){
-				fl_second = false;
-				fl_main = true;
+				obj1[0].fl = true;
 				enemy_ball_2 = 0;
 				obj2[0].ind = 0;
 				obj1[0].y = rand() % 650;
 				obj2[0].bl = false;
 			}
 		}
-	}
+	//}
 }
 
 void emy_main_cha(){
-	if (fl_main){
-		if (obj4[0].fl == false){
-			obj3[0].ind++;
-			if (obj3[0].ind >= 5){
-				obj4[0].fl = true;
-				obj3[0].ind = 0;
-			}
+	if (obj3[0].fl == true){
+		obj3[0].ind++;
+		if (obj3[0].ind >= 4){
+			obj4[0].fl = true;
+			obj3[0].fl = false;
+			obj4[0].ind = 0;
+			obj3[0].ind = 0;
 		}
-		else{
-			obj4[0].ind++;
-			if (obj4[0].ind >= 5){
-				fl_second = true;
-				fl_main = false;
-				enemy_ball_2_m = 0;
-				obj4[0].ind = 0;
-				obj3[0].y = rand() % 500;
-				obj4[0].fl = false;
-			}
+	}
+	else{
+		obj4[0].ind++;
+		if (obj4[0].ind >= 3){
+			obj3[0].fl = true;
+			enemy_ball_2_m = 0;
+			obj4[0].ind = 0;
+			obj3[0].y = rand() % 450;
+			obj4[0].fl = false;
 		}
 	}
 }
+
 void emy_3_cha(){
-	if (obj6.fl == false){
+	if (obj5.fl == true){
 		obj5.ind++;
 		if (obj5.ind >= 5){
+			thrid_coll = false;
 			obj6.fl = true;
+			obj5.fl = false;
 			obj5.ind = 0;
 		}
 	}
 	else{
-		if (enemy_ball_3<-1400){
+		if (enemy_ball_3<-1400 || thrid_coll){
+			obj5.fl = true;
 			enemy_ball_3 = 0;
 			obj5.y = rand() % 500;
 			obj6.fl = false;
@@ -1023,10 +1517,10 @@ int main()
 	ene_main_fix();
 	ene_2_fix();
 	showing_eme();
-	iSetTimer(150, change);
-	iSetTimer(780, emy_2_cha);
-	iSetTimer(380, emy_main_cha);
-	iSetTimer(500, emy_3_cha);
+	iSetTimer(200, change);
+	iSetTimer(500, emy_2_cha);
+	iSetTimer(330, emy_main_cha);
+	iSetTimer(300, emy_3_cha);
 	iInitialize(1700, 800,"hills");
 	a = iLoadImage("./bci/backgr1.jpg");
 	b = iLoadImage("./bci/bg_lower.jpg");
