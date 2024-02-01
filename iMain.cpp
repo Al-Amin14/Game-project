@@ -1,5 +1,7 @@
 #include<iostream>
+#include<string.h>
 #include "iGraphics.h"
+#include "bitmap_loader.h"
 using namespace std;
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Idraw Here::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://
 #define screenWidth 1000
@@ -15,12 +17,130 @@ int r = 255;
 int g = 255;
 int b = 255;
 int a;
+int hbp_move=15;
 int ene_3_count = 25;
 bool die_enem = false;
 int die_ind = 0;
 int count_die_cnt = 0;
-char die_showing[10][30] = { "bci\\ene_die1.bmp", "bci\\ene_die2.bmp", "bci\\ene_die3.bmp", "bci\\ene_die4.bmp", "bci\\ene_die5.bmp", "bci\\ene_die6.bmp", "bci\\ene_die7.bmp", "bci\\ene_die8.bmp", "bci\\ene_die9.bmp", "bci\\ene_die10.bmp"};
 
+int player_life_ind = 0;
+int game_ind = 0;
+bool winner_show = false;
+bool hiper_power1 = false;
+bool hiper_power_2 = false;
+int hbp_ind = 0;
+int hbp_ball_ind = 0;
+//-------------------------------------------------------Scorring part ---------------------------------------------------------------------------
+bool play_ground = false;
+char str1[40];
+bool take_name = false;
+void showChar()
+{
+	iSetColor(255, 0, 0);
+	iText(680,600, "Enter your name", GLUT_BITMAP_TIMES_ROMAN_24);
+	iRectangle(660, 530, 220, 30);
+	iText(670, 540, str1, GLUT_BITMAP_HELVETICA_18);
+
+}
+typedef struct Player Player;
+
+struct Player{
+	char name[30];
+	int score = 0;
+	Player()
+	{
+		;
+	}
+	Player(char *_name, int _score)
+	{
+		strcpy(name, _name);
+		score = _score;
+	}
+};
+typedef struct sorting
+{
+	char ch[30];
+	int sc;
+} sorts;
+
+void sort_stru(sorting o1[], int cnt)
+{
+	for (int i = 0; i < cnt; i++)
+	{
+		for (int j = i + 1; j < cnt; j++)
+		{
+			if (o1[i].sc < o1[j].sc)
+			{
+				sorting temp = o1[i];
+				o1[i] = o1[j];
+				o1[j] = temp;
+			}
+		}
+	}
+}
+Player o1;
+void high_page_sorting(){
+	FILE *fp = fopen("high_score.txt", "a");
+	fprintf(fp, "%s %d\n", o1.name, o1.score);
+	fclose(fp);
+}
+void showing_score_page(){
+	int z;
+	FILE *fp = fopen("high_score.txt", "r");
+	char chs[30];
+	int cnt = 0;
+	while (fscanf(fp, "%s%d", &chs, &z) != EOF)
+	{
+		cnt++;
+	}
+	sorts o2[100];
+	fclose(fp);
+	fp = fopen("high_score.txt", "r");
+	for (int i = 0; i < cnt; i++)
+	{
+		fscanf(fp, "%s%d", &chs, &z);
+		strcpy(o2[i].ch, chs);
+		o2[i].sc = z;
+	}
+	fclose(fp);
+	fp = fopen("high_score.txt", "r");
+	sort_stru(o2, cnt);
+	int x=cnt;
+	if (cnt>7){
+		x = 7;
+	}
+	for (int i = 0; i <x; i++)
+	{
+		char name[2][30];
+		fprintf(fp, "%s %d\n", o2[i].ch, o2[i].sc);
+		sprintf(name[0], "%s",o2[i].ch );
+		sprintf(name[1], "%d", o2[i].sc);
+		iSetColor(255,255,0);
+		iText(700, 550 - 50 * i, name[0], GLUT_BITMAP_TIMES_ROMAN_24);
+		iText(900, 550 - 50 * i, name[1], GLUT_BITMAP_TIMES_ROMAN_24);
+	}
+	fclose(fp);
+}
+char point[1000];
+void showing_score(){
+	
+	iShowBMP2(975, 720,"bci\\scoring.bmp",0);
+	iShowBMP2(1000, 745, "bci\\s1.bmp", 0);
+	iSetColor(0,0,0);
+	iText(1125, 755, ":", GLUT_BITMAP_TIMES_ROMAN_24);
+	sprintf_s(point, "%d", o1.score);
+	iText(1142, 755, point, GLUT_BITMAP_TIMES_ROMAN_24);
+}
+
+//-------------------------------------------------------Scoring End------------------------------------------------------------------------------
+
+
+
+char hbp_sho[8][30] = { "lgp\\hbp1.bmp", "lgp\\hbp2.bmp", "lgp\\hbp3.bmp", "lgp\\hbp4.bmp", "lgp\\hbp5.bmp", "lgp\\hbp6.bmp", "lgp\\hbp7.bmp", "lgp\\hbp8.bmp"};
+char hbp_sho_ball[4][30] = { "lgp\\hbp9.bmp", "lgp\\hbp10.bmp", "lgp\\hbp11.bmp", "lgp\\hbp12.bmp"};
+char main_die_showing[8][30] = { "bci\\main_die1.bmp", "bci\\main_die2.bmp", "bci\\main_die3.bmp", "bci\\main_die4.bmp", "bci\\main_die5.bmp", "bci\\main_die6.bmp", "bci\\main_die7.bmp", "bci\\main_die8.bmp"};
+char die_showing[10][30] = { "bci\\ene_die1.bmp", "bci\\ene_die2.bmp", "bci\\ene_die3.bmp", "bci\\ene_die4.bmp", "bci\\ene_die5.bmp", "bci\\ene_die6.bmp", "bci\\ene_die7.bmp", "bci\\ene_die8.bmp", "bci\\ene_die9.bmp", "bci\\ene_die10.bmp"};
+char lifing[28][30] = { "bci\\life1.bmp", "bci\\life2.bmp", "bci\\life3.bmp", "bci\\life4.bmp", "bci\\life5.bmp", "bci\\life6.bmp", "bci\\life7.bmp", "bci\\life8.bmp", "bci\\life9.bmp", "bci\\life10.bmp", "bci\\life11.bmp", "bci\\life12.bmp", "bci\\life13.bmp", "bci\\life14.bmp", "bci\\life15.bmp", "bci\\life16.bmp", "bci\\life17.bmp", "bci\\life18.bmp", "bci\\life19.bmp", "bci\\life20.bmp", "bci\\life21.bmp", "bci\\life22.bmp", "bci\\life23.bmp", "bci\\life24.bmp", "bci\\life25.bmp", "bci\\life26.bmp", "bci\\life27.bmp", "bci\\life28.bmp"};
 char demon[6][100] = { "run\\run1.bmp", "run\\run2.bmp", "run\\run3.bmp", "run\\run4.bmp", "run\\run5.bmp", "run\\run6.bmp"};
 
 char demon_stand[15] = "run\\stand.bmp";
@@ -30,7 +150,7 @@ char jump_down[3][100] = {"jump\\jump_down1.bmp", "jump\\jump_down2.bmp", "jump\
 int demon_cordX = 0;
 int demon_cordY = 0;
 int demon_ind = 0;
-
+int fir_ene_cnt= 0;
 bool standposs = true;
 int standcounter = 0;
 
@@ -129,7 +249,7 @@ int cnt5 = 0;
 bool level_st_2 = false;
 bool level_st_1 = false;
 bool instruction_page = false;
-bool homepage = true;
+bool homepage =true;
 bool high_score_page = false;
 bool musicon_home = true;
 bool music_game = false;
@@ -176,30 +296,34 @@ void enemy_1_show(){
 		int cn = demon_jump_cord_x + 270;
 		if (ene[i].enemy_show && blade_pl_fl == true && (((ene[i].enemy_cord_x - demon_cordX) <= 100 && (ene[i].enemy_cord_x - demon_cordX) >= -150) || (demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 350)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && fb_arr_fl_sr == false && fb_arr_fl == true && ((ene[i].enemy_cord_x - fb_cord_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - fb_cord_x) >= -200 || (fb_cord_x + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 350)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && leg_p_fl_1 == false && leg_p_fl == true && ((ene[i].enemy_cord_x - lg_cordx - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - lg_cordx) >= -200 || (lg_cordx + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 450)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && thunder_fl_11 == false && thunder_fl1 == true && ((ene[i].enemy_cord_x - th_cordx_1 - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - th_cordx_1) >= -200 || (th_cordx_1 + demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 800)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && power_bb_first == false && power_bb == true && ((ene[i].enemy_cord_x - ind_cord_x-demon_cordX-200) <= 30 && (ene[i].enemy_cord_x - ind_cord_x-demon_cordX) >= -200 || (ind_cord_x+demon_cordX - ene[i].enemy_cord_x) >= -200) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 600)){
-
+			o1.score += 4;
 			show_enemy_cnt++;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
@@ -207,30 +331,36 @@ void enemy_1_show(){
 		}
 		else if (ene[i].enemy_show && vanish_bp_fl_1 == false && vanish_bp_fl == true && ((ene[i].enemy_cord_x - vanish_cord_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - vanish_cord_x) >= -200 || (vanish_cord_x + demon_cordX - ene[i].enemy_cord_x) >= -100) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 500)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && thunder_fl_1 == false && thunder_fl == true && ((((ene[i].enemy_cord_x - th_cordx - demon_cordX - 150)) <= 900 || (th_cordx - ene[i].enemy_cord_x) >= 900)) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 500)){
 			show_enemy_cnt++;
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && jumpup == false && jumpdown == false && sur_sock_fl==true && (((ene[i].enemy_cord_x - dem_sur_x - demon_cordX - 150) <= 30 && (ene[i].enemy_cord_x - dem_sur_x) >= -250) || (dem_sur_x + demon_cordX - ene[i].enemy_cord_x) >= 10) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 280)){
-			show_enemy_cnt++;
+			show_enemy_cnt++; 
+			o1.score += 4;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && jumpup == false && jumpdown == false && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>0 && ene[i].enemy_cord_y < 270)){
-			cout << "Fix ing bug" << endl;
+			fir_ene_cnt++;
+			mciSendString("play collition_with_power.wav", NULL, 0, NULL);
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			ene[i].enemy_show = false;
 		}
 		else if (ene[i].enemy_show && (over_jump1 || over_down1 || jumpdown || jumpup) && ((ene[i].enemy_cord_x - demon_cordX) <= 30 && (ene[i].enemy_cord_x - demon_cordX) >= -150) && (ene[i].enemy_cord_y>demon_jump_cord_x && ene[i].enemy_cord_y <cn)){
-		
+			mciSendString("play collition_with_power.wav", NULL, 0, NULL);
+			if (jumpup || jumpdown)
+				fir_ene_cnt++;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
 			
@@ -238,6 +368,16 @@ void enemy_1_show(){
 		}
 		else if (ene[i].enemy_show && dem_ind == 3 && ((((ene[i].enemy_cord_x - pow_x-demon_cordX-150) <= 30 && (ene[i].enemy_cord_x - pow_x) >= -300) || (pow_x + demon_cordX - ene[i].enemy_cord_x) >= -70)) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 520))
 		{
+			o1.score += 4;
+			show_enemy_cnt++;
+			x_sh = ene[i].enemy_cord_x;
+			y_sh = ene[i].enemy_cord_y;
+
+			ene[i].enemy_show = false;
+		}
+		else if (ene[i].enemy_show && hiper_power1 && hiper_power_2 == false && ((((ene[i].enemy_cord_x - hbp_move - demon_cordX - 500) <= 30 && (ene[i].enemy_cord_x - hbp_move - demon_cordX) >= -500) || (hbp_move +demon_cordX+300 - ene[i].enemy_cord_x) >= -70)) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 350))
+		{
+			o1.score += 4;
 			show_enemy_cnt++;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
@@ -246,6 +386,7 @@ void enemy_1_show(){
 		}
 		else if (ene[i].enemy_show && dem_pow1 && (((ene[i].enemy_cord_x - pow_x - demon_cordX - 110) <= 30 && (ene[i].enemy_cord_x - pow_x) >= -250) || (demon_cordX + pow_x - ene[i].enemy_cord_x) >= -70) && (ene[i].enemy_cord_y >= 0 && ene[i].enemy_cord_y <= 400))
 		{
+			o1.score += 4;
 			show_enemy_cnt++;
 			x_sh = ene[i].enemy_cord_x;
 			y_sh = ene[i].enemy_cord_y;
@@ -258,6 +399,7 @@ void enemy_1_show(){
 }
 
 //*********************************************************************End collitin part *************************************************************************************
+
 char run_back[6][30] = { "bci\\rb1.bmp", "bci\\rb2.bmp", "bci\\rb3.bmp", "bci\\rb4.bmp", "bci\\rb5.bmp", "bci\\rb6.bmp" };
 bool rum_back_fl = false;
 int run_back_ind = 0;
@@ -305,79 +447,100 @@ enemy_ball obj2[1];
 char ene_fir_ball_2[3][30] = { "bci\\emy_ball_1.bmp", "bci\\emy_ball_2.bmp","bci\\emy_ball_3.bmp" };
 
 //-------------------------------------------------------enemy 2nd collition -------------------------------------------------
+char enemy_life_second[6][30] = { "bci\\first_ene_life1.bmp", "bci\\first_ene_life2.bmp", "bci\\first_ene_life3.bmp", "bci\\first_ene_life4.bmp", "bci\\first_ene_life5.bmp", "bci\\first_ene_life6.bmp"};
 void show_enemy(){
 	if (obj1[0].fl == true){
+		iShowBMP2(obj1[0].x, obj1[0].y+190, enemy_life_second[show_thire_cnt], 0);
 		iShowBMP2(obj1[0].x, obj1[0].y, ene_2[obj1[0].ind], 0);
 		if (dem_pow1 && (obj1[0].x - pow_x - demon_cordX - 150 <= 30 && (obj1[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj1[0].x) >= 150) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500))
-		{	show_thire_cnt++;
+		{
+			o1.score += 10;
+			show_thire_cnt++;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
-
+        
 		}
 		else if (dem_pow1 && (obj1[0].x - pow_x - demon_cordX - 150 <= 30 && (obj1[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj1[0].x) >= 150) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 10;
 			show_thire_cnt++;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+        
+		}
+		else if (sur_sock_fl && ((((obj1[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj1[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj1[0].x) >= 100)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			show_thire_cnt++; 
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (sur_sock_fl && ((((obj1[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj1[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj1[0].x) >= 100)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 400)){
-			show_thire_cnt++;
+			show_thire_cnt++; 
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
-
+        
 		}
-		else if (sur_sock_fl && ((((obj1[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj1[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj1[0].x) >= 100)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 400)){
-			show_thire_cnt++;
-			obj1[0].fl = false;
-			obj1[0].ind = 0;
-
-		}
-
+        
 		else if ((over_jump1 || over_down1) && (obj1[0].x - demon_cordX - 150 <= 50 && obj1[0].x - demon_cordX >= 20 || demon_cordX - obj1[0].x >= 30) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 300)){
-			show_thire_cnt++;
+			show_thire_cnt++; 
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
-		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj1[0].x - th_cordx)) <= 1400 || (th_cordx - obj1[0].x) >= 1400)) && (obj1[0].y >= 0 && obj1[0].y <= 500)){
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj1[0].x - th_cordx-demon_cordX)) <= 930 || (th_cordx+demon_cordX - obj1[0].x) >=0)) && (obj1[0].y >= 0 && obj1[0].y <= 500)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj1[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj1[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 500)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (power_bb == true && power_bb_first == false && (((obj1[0].x - ind_cord_x - demon_cordX - 300) <= 30 && (obj1[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj1[0].x) >= 0)) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 650)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj1[0].x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj1[0].x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 650)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj1[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj1[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 470)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj1[0].x - fb_cord_x - demon_cordX - 150) <= 30 && (obj1[0].x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 350)){
 			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
 		}
 		else if (blade_pl_fl == true && (((obj1[0].x - demon_cordX - 100) <= 30 && (obj1[0].x - demon_cordX) >= -150) || (demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 390)){
 			show_thire_cnt++;
+			o1.score += 10;
+			obj1[0].fl = false;
+			obj1[0].ind = 0;
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj1[0].x - hbp_move - demon_cordX - 500) <= 30 && (obj1[0].x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj1[0].x) >= 0) && (obj1[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj1[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			show_thire_cnt++;
+			o1.score += 10;
 			obj1[0].fl = false;
 			obj1[0].ind = 0;
 
@@ -386,50 +549,68 @@ void show_enemy(){
 	else if (obj2[0].bl){
 		obj2[0].x = obj1[0].x;
 		obj2[0].y = obj1[0].y;
-		enemy_ball_2 -= 12;
+		enemy_ball_2 -= 22;
 		obj2[0].x += enemy_ball_2;
 		iShowBMP2(obj2[0].x, obj2[0].y, ene_fir_ball_2[obj2[0].ind], 0);
 		if ((obj2[0].x - demon_cordX -30<= 30 && obj2[0].x - demon_cordX >=-100) && (obj2[0].y >= demon_cordY + demon_jump_cord_x-30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 250)){
+			game_ind++;
 			obj2[0].bl = false;
 		}
 		else if (dem_pow1 && (obj2[0].x - pow_x - demon_cordX - 150 <= 30 && (obj2[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj2[0].x) >= 150) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 4;
 			obj2[0].bl = false;
 		}
 		else if (dem_pow1 && (obj2[0].x - pow_x - demon_cordX - 150 <= 30 && (obj2[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj2[0].x) >= 150) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 4;
 			obj2[0].bl = false;
 		}
 		else if (sur_sock_fl && ((((obj2[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj2[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj2[0].x) >= 100)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 400)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (sur_sock_fl && ((((obj2[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj2[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj2[0].x) >= 100)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 400)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		
 		else if ((over_jump1 || over_down1) && (obj2[0].x - demon_cordX - 150 <= 50 && obj2[0].x - demon_cordX >= 20 || demon_cordX - obj2[0].x >= 30) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 300)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
-		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj2[0].x - th_cordx)) <= 1100 || (th_cordx - obj2[0].x) >= 1100)) && (obj2[0].y >= 0 && obj2[0].y <= 500)){
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj2[0].x - th_cordx-demon_cordX)) <= 900 || (th_cordx - obj2[0].x) >=- 900)) && (obj2[0].y >= 0 && obj2[0].y <= 500)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj2[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj2[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 500)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (power_bb==true && power_bb_first==false && (((obj2[0].x - ind_cord_x - demon_cordX-300) <= 30 && (obj2[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj2[0].x) >= 0)) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			game_ind++;
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj2[0].x - th_cordx_1-demon_cordX-200) <= 30 && (obj2[0].x - th_cordx_1-demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj2[0].x) >=0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 650)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj2[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj2[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX +100- obj2[0].x) >=0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x +470)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj2[0].x - fb_cord_x-demon_cordX-150) <= 30 && (obj2[0].x - fb_cord_x-demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 350)){
 			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		else if (blade_pl_fl == true && (((obj2[0].x - demon_cordX - 100) <= 30 && (obj2[0].x - demon_cordX) >= -150) || (demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 390)){
 			obj2[0].bl = false;
+			o1.score += 4;
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj2[0].x - hbp_move - demon_cordX - 500) <= 30 && (obj2[0].x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj2[0].x) >= 0) && (obj2[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj2[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj2[0].bl = false;
+			o1.score += 4;
 		}
 		}
 }
@@ -438,69 +619,97 @@ void show_enemy(){
 
 
 //---------------------------------------------------Start of Mani enemy collition -------------------------------------
+char main_life_ene[9][30] = { "lgp\\main1.bmp", "lgp\\main2.bmp", "lgp\\main3.bmp", "lgp\\main4.bmp", "lgp\\main5.bmp", "lgp\\main6.bmp", "lgp\\main7.bmp", "lgp\\main8.bmp", "lgp\\main9.bmp"};
+int main_life_ene_cnt = 0;
 void show_main_en(){
 	if (obj3[0].fl == true){
+		if (main_life_ene_cnt<=8)
+		iShowBMP2(obj3[0].x, obj3[0].y+398, main_life_ene[main_life_ene_cnt], 0);
 		iShowBMP2(obj3[0].x, obj3[0].y, main_en_mv[obj3[0].ind], 0);
 
 		if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj3[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj3[0].x) >= 150) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 30;
+			main_life_ene_cnt++;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
-		else if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj3[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj3[0].x) >= 150) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500))
-		{
+		
+		else if (sur_sock_fl && ((((obj3[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj3[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj3[0].x) >= 100)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (sur_sock_fl && ((((obj3[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj3[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj3[0].x) >= 100)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 400)){
-			obj3[0].fl = false;
-			obj3[0].ind = 0;
-
-		}
-		else if (sur_sock_fl && ((((obj3[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj3[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj3[0].x) >= 100)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 
 		else if ((over_jump1 || over_down1) && (obj3[0].x - demon_cordX - 150 <= 50 && obj3[0].x - demon_cordX >= 20 || demon_cordX - obj3[0].x >= 30) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
-		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj3[0].x - th_cordx)) <= 1100 || (th_cordx - obj3[0].x) >= 1100)) && (obj3[0].y >= 0 && obj3[0].y <= 500)){
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj3[0].x - th_cordx-demon_cordX)) <= 900 || (th_cordx+demon_cordX - obj3[0].x) >= -900)) && (obj3[0].y >= 0 && obj3[0].y <= 500)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj3[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj3[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (power_bb == true && power_bb_first == false && (((obj3[0].x - ind_cord_x - demon_cordX - 300) <= 30 && (obj3[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj3[0].x) >= 0)) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj3[0].x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj3[0].x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj3[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj3[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 470)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj3[0].x - fb_cord_x - demon_cordX - 150) <= 30 && (obj3[0].x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
 		}
 		else if (blade_pl_fl == true && (((obj3[0].x - demon_cordX - 100) <= 30 && (obj3[0].x - demon_cordX) >= -150) || (demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			main_life_ene_cnt++;
+				o1.score += 30;;
+			obj3[0].fl = false;
+			obj3[0].ind = 0;
+
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj3[0].x - hbp_move - demon_cordX - 500) <= 30 && (obj3[0].x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj3[0].x) >= 0) && (obj3[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj3[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			main_life_ene_cnt++;
+			o1.score += 30;
 			obj3[0].fl = false;
 			obj3[0].ind = 0;
 
@@ -510,49 +719,67 @@ void show_main_en(){
 	else if (obj4[0].fl){
 		obj4[0].x = obj3[0].x;
 		obj4[0].y = obj3[0].y;
-		enemy_ball_2_m -= 16;
+		enemy_ball_2_m -= 22;
 		obj4[0].x += enemy_ball_2_m;
 		iShowBMP2(obj4[0].x , obj4[0].y, main_en_ball[obj4[0].ind], 0);
 		if ((obj4[0].x - demon_cordX-30 <= 30 && obj4[0].x - demon_cordX >=-100) && (obj4[0].y >= demon_cordY + demon_jump_cord_x-30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 250)){
+			game_ind += 3;
 			obj4[0].fl = false;
 		}
 		else if ( dem_pow1 &&(obj4[0].x - pow_x-demon_cordX -150<= 30 && (obj4[0].x - pow_x-demon_cordX >= -200) || (pow_x+demon_cordX-obj4[0].x)>=150 ) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (dem_pow1 && (obj4[0].x - pow_x - demon_cordX -150<= 30 && (obj4[0].x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj4[0].x) >= 150) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (sur_sock_fl && ((((obj4[0].x - dem_sur_x - demon_cordX-150) <= 30 && (obj4[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj4[0].x) >= 100)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (sur_sock_fl && ((((obj4[0].x - dem_sur_x - demon_cordX - 150) <= 30 && (obj4[0].x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj4[0].x) >= 100)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 400)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		
 		else if ((over_jump1 || over_down1) && (obj4[0].x - demon_cordX - 150 <= 50 && obj4[0].x - demon_cordX >= 20 || demon_cordX - obj4[0].x >= 30) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 300)){
+			if (over_jump1==false && over_down1==false)
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
-		else if ( thunder_fl_1 == false && thunder_fl == true && ((((obj4[0].x - th_cordx)) <= 1100 || (th_cordx - obj4[0].x) >= 1100)) && (obj4[0].y >= 0 && obj4[0].y <= 500)){
+		else if ( thunder_fl_1 == false && thunder_fl == true && ((((obj4[0].x - th_cordx-demon_cordX)) <= 900 || (th_cordx+demon_cordX - obj4[0].x) >= -900)) && (obj4[0].y >= 0 && obj4[0].y <= 500)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj4[0].x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj4[0].x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 500)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (power_bb==true && power_bb_first==false && (((obj4[0].x - ind_cord_x - demon_cordX-300) <= 30 && (obj4[0].x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj4[0].x) >= 0)) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj4[0].x - th_cordx_1-demon_cordX-200) <= 30 && (obj4[0].x - th_cordx_1-demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj4[0].x) >=0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 650)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj4[0].x - lg_cordx - demon_cordX - 150) <= 30 && (obj4[0].x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX +100- obj4[0].x) >=0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x +470)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj4[0].x - fb_cord_x-demon_cordX-150) <= 30 && (obj4[0].x - fb_cord_x-demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 		else if (blade_pl_fl == true && (((obj4[0].x - demon_cordX - 100) <= 30 && (obj4[0].x - demon_cordX) >= -150) || (demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 390)){
+			o1.score += 4;
+			obj4[0].fl = false;
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj4[0].x - hbp_move - demon_cordX - 500) <= 30 && (obj4[0].x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj4[0].x) >= 0) && (obj4[0].y >= demon_cordY + demon_jump_cord_x - 30 && obj4[0].y <= demon_cordY + demon_jump_cord_x + 350)){
+			o1.score += 4;
 			obj4[0].fl = false;
 		}
 	}   
@@ -562,12 +789,17 @@ void show_main_en(){
 
 //______________________________________________________________Star of 3 ene collition_______________________________________________________________________
 
+char thrid_life[9][30] = { "bci\\third1.bmp", "bci\\third2.bmp", "bci\\third3.bmp", "bci\\third4.bmp", "bci\\third5.bmp", "bci\\third6.bmp", "bci\\third7.bmp", "bci\\third8.bmp", "bci\\third9.bmp"};
+
 bool thrid_coll = false;
 void show_third_en(){
 	if (obj5.fl){
+		if (show_main_cnt<=8)
+		iShowBMP2(obj5.x, obj5.y + 220, thrid_life[show_main_cnt], 0);
 		iShowBMP2(obj5.x, obj5.y, ene_third_sh[obj5.ind], 0);
 		if (dem_pow1 && (obj3[0].x - pow_x - demon_cordX - 150 <= 30 && (obj5.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj5.x) >= 150) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 20;
 			show_main_cnt++;
 			obj5.fl = false;
 			obj5.ind = 0;
@@ -575,6 +807,7 @@ void show_third_en(){
 		}
 		else if (dem_pow1 && (obj5.x - pow_x - demon_cordX - 150 <= 30 && (obj5.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj5.x) >= 150) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500))
 		{
+			o1.score += 20;
 			show_main_cnt++;
 			obj5.fl = false;
 			obj5.ind = 0;
@@ -582,12 +815,14 @@ void show_third_en(){
 		}
 		else if (sur_sock_fl && ((((obj5.x - dem_sur_x - demon_cordX - 150) <= 30 && (obj5.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj5.x) >= 100)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 400)){
 			show_main_cnt++;
+			o1.score += 20;
 			obj5.fl = false;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
 		else if (sur_sock_fl && ((((obj5.x - dem_sur_x - demon_cordX - 150) <= 30 && (obj5.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj5.x) >= 100)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 400)){
 			show_main_cnt++;
+			o1.score += 20;
 			obj5.fl = false;
 			obj5.ind = 0;
 			thrid_coll = true;
@@ -596,11 +831,13 @@ void show_third_en(){
 		else if ((over_jump1 || over_down1) && (obj5.x - demon_cordX - 150 <= 50 && obj5.x - demon_cordX >= 20 || demon_cordX - obj5.x >= 30) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 300)){
 			show_main_cnt++;
 			obj5.fl = false;
+			o1.score += 20;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
-		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj5.x - th_cordx)) <= 1100 || (th_cordx - obj5.x) >= 1100)) && (obj5.y >= 0 && obj5.y <= 500)){
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj5.x - th_cordx-demon_cordX)) <= 900 || (th_cordx+demon_cordX - obj5.x) >=-900)) && (obj5.y >= 0 && obj5.y <= 500)){
 			show_main_cnt++;
+			o1.score += 20;
 			obj5.fl = false;
 			obj5.ind = 0;
 			thrid_coll = true;
@@ -608,11 +845,13 @@ void show_third_en(){
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj5.x - vanish_cord_x - demon_cordX - 150) <= 30 && (obj5.x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 500)){
 			show_main_cnt++;
 			obj5.fl = false;
+			o1.score += 20;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
 		else if (power_bb == true && power_bb_first == false && (((obj5.x - ind_cord_x - demon_cordX - 300) <= 30 && (obj5.x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj5.x) >= 0)) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 650)){
 			show_main_cnt++;
+			o1.score += 20;
 			obj5.fl = false;
 			obj5.ind = 0;
 			thrid_coll = true;
@@ -620,6 +859,7 @@ void show_third_en(){
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj5.x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj5.x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 650)){
 			show_main_cnt++;
 			obj5.fl = false;
+			o1.score += 20;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
@@ -627,17 +867,36 @@ void show_third_en(){
 			show_main_cnt++;
 			obj5.fl = false;
 			obj5.ind = 0;
+			o1.score += 20;
 			thrid_coll = true;
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj5.x - fb_cord_x - demon_cordX - 150) <= 30 && (obj5.x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 350)){
 			show_main_cnt++;
 			obj5.fl = false;
+			o1.score += 20;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
 		else if (blade_pl_fl == true && (((obj5.x - demon_cordX - 100) <= 30 && (obj5.x - demon_cordX) >= -150) || (demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 390)){
 			show_main_cnt++;
+			o1.score += 20;
 			obj5.fl = false;
+			obj5.ind = 0; 
+			o1.score += 20;
+			thrid_coll = true;
+		}
+		else if (blade_pl_fl == true && (((obj5.x - demon_cordX - 100) <= 30 && (obj5.x - demon_cordX) >= -150) || (demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 390)){
+			show_main_cnt++;
+			obj5.fl = false;
+			obj5.ind = 0;
+			o1.score += 20;
+			thrid_coll = true;
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj5.x - hbp_move - demon_cordX - 500) <= 30 && (obj5.x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj5.x) >= 0) && (obj5.y >= demon_cordY + demon_jump_cord_x - 30 && obj5.y <= demon_cordY + demon_jump_cord_x + 350))
+		{
+			show_main_cnt++;
+			obj5.fl = false;
+			o1.score += 20;
 			obj5.ind = 0;
 			thrid_coll = true;
 		}
@@ -646,71 +905,109 @@ void show_third_en(){
 	else if (obj6.fl){
 		obj6.x = obj5.x;
 		obj6.y = obj5.y;
-		enemy_ball_3 -= 13;
+		enemy_ball_3 -= 22;
 		obj6.x += enemy_ball_3;
 		iShowBMP2(obj6.x, obj6.y, ch_ene_dr[0], 0);
 		if ((obj6.x - demon_cordX-30 <= 30 && obj6.x - demon_cordX >= -100) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 250)){
+			game_ind+=2;
 			obj6.fl = false;
 			thrid_coll = true;
 		}
 		else if (dem_pow1 && (obj6.x - pow_x - demon_cordX -150<= 30 && (obj6.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj6.x) >= 150) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500))
 		{
-			obj6.fl = false;
-			thrid_coll = true;
-		}
-		else if (dem_pow1 && (obj6.x - pow_x - demon_cordX-150 <= 30 && (obj6.x - pow_x - demon_cordX >= -200) || (pow_x + demon_cordX - obj6.x) >= 150) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500))
-		{
-			thrid_coll = true;
-			obj6.fl = false;
-		}
-		else if (sur_sock_fl && ((((obj6.x - dem_sur_x - demon_cordX-150) <= 30 && (obj6.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj6.x) >= 100)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 400)){
+			o1.score += 4;
 			obj6.fl = false;
 			thrid_coll = true;
 		}
 		else if (sur_sock_fl && ((((obj6.x - dem_sur_x - demon_cordX-150) <= 30 && (obj6.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj6.x) >= 100)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 400)){
 			obj6.fl = false;
+			o1.score += 4;
+			thrid_coll = true;
+		}
+		else if (sur_sock_fl && ((((obj6.x - dem_sur_x - demon_cordX-150) <= 30 && (obj6.x - dem_sur_x - demon_cordX) >= -100) || (dem_sur_x + demon_cordX - obj6.x) >= 100)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 400)){
+			obj6.fl = false;
+			o1.score += 4;
 			thrid_coll = true;
 		}
 
 		else if ((over_jump1 || over_down1) && (obj6.x - demon_cordX-150 <= 50 && obj6.x - demon_cordX >= 20 || demon_cordX - obj6.x >= 30) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 300)){
 			obj6.fl = false;
 			thrid_coll = true;
+			o1.score += 4;
 		}
-		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj6.x - th_cordx)) <= 1100 || (th_cordx - obj6.x) >= 1100)) && (obj6.y >= 0 && obj6.y <= 500)){
+		else if (thunder_fl_1 == false && thunder_fl == true && ((((obj6.x - th_cordx-demon_cordX)) <= 900 || (th_cordx - obj6.x) >= -900)) && (obj6.y >= 0 && obj6.y <= 500)){
 			obj6.fl = false;
 			thrid_coll = true;
+			o1.score += 4;
 		}
 		else if (vanish_bp_fl_1 == false && vanish_bp_fl == true && ((obj6.x - vanish_cord_x - demon_cordX-150) <= 30 && (obj6.x - vanish_cord_x - demon_cordX) >= -100 || (vanish_cord_x + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 500)){
 			obj6.fl = false;
+			o1.score += 4;
 			thrid_coll = true;
 		}
+
 		else if (power_bb == true && power_bb_first == false && (((obj6.x - ind_cord_x - demon_cordX - 300) <= 30 && (obj6.x - ind_cord_x - demon_cordX) >= -500 || (ind_cord_x + demon_cordX - obj6.x) >= 0)) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 650)){
 			obj6.fl = false;
 			thrid_coll = true;
+			o1.score += 4;
 		}
 		else if (thunder_fl_11 == false && thunder_fl1 == true && ((obj6.x - th_cordx_1 - demon_cordX - 200) <= 30 && (obj6.x - th_cordx_1 - demon_cordX) >= -200 || (th_cordx_1 + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 650)){
 			obj6.fl = false;
 			thrid_coll = true;
+			o1.score += 4;
 		}
 		else if (leg_p_fl_1 == false && leg_p_fl == true && ((obj6.x - lg_cordx - demon_cordX - 150) <= 30 && (obj6.x - lg_cordx - demon_cordX) >= -200 || (lg_cordx + demon_cordX + 100 - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 470)){
 			obj6.fl = false;
 			thrid_coll = true;
+			o1.score += 4;
 		}
 		else if (fb_arr_fl_sr == false && fb_arr_fl == true && ((obj6.x - fb_cord_x - demon_cordX - 150) <= 30 && (obj6.x - fb_cord_x - demon_cordX) >= -200 || (fb_cord_x + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 350)){
 			obj6.fl = false;
+			o1.score += 4;
 			thrid_coll = true;
 		}
 		else if (blade_pl_fl == true && (((obj6.x - demon_cordX - 100) <= 30 && (obj6.x - demon_cordX) >= -150) || (demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 390)){
 			obj6.fl = false;
+			o1.score += 4;
+			thrid_coll = true;
+		}
+		else if (hiper_power_2 == false && hiper_power1 == true && ((obj6.x - hbp_move - demon_cordX - 500) <= 30 && (obj6.x - hbp_move - demon_cordX) >= -400 || (hbp_move + demon_cordX - obj6.x) >= 0) && (obj6.y >= demon_cordY + demon_jump_cord_x - 30 && obj6.y <= demon_cordY + demon_jump_cord_x + 350)){
+			obj6.fl = false;
+			o1.score += 4;
 			thrid_coll = true;
 		}
 	}
 }
 
 //______________________________________________________________End of 3 ene collition_______________________________________________________________________
-
-
-
+int len;
+bool die_flag = false;
+bool end_page = false;
+void takeinput(unsigned key){
+	if (key == 'p'){
+		exit(0);
+	}
+	if (key == '\r'){
+		strcpy(o1.name, str1);
+		high_page_sorting();
+		high_score_page = true;
+	}
+	else if (key=='\b'){
+		if (len <= 0){
+			len = 0;
+		}
+        else
+		   len--;
+		str1[len] = '\0';
+	}
+	else{
+		str1[len] = key;
+		len++;
+		if(len > 15){
+			len = 15;
+		}str1[len] = '\0';
+	}
+}
 void iDraw()
 {
 	iClear();
@@ -725,12 +1022,39 @@ void iDraw()
 			iShowBMP(0, 0, "bci\\instruction.bmp");
 	else if(high_score_page){
 		iShowBMP(0,0, "bci\\high_page.bmp");
+		showing_score_page();
 	}
 	else if (level_st_1){
 		iShowBMP(0, 0, "bci\\level1.bmp");
 	}
 	else if (level_st_2){
 		iShowBMP(0, 0, "bci\\level2.bmp");
+	}
+	else if (die_flag){
+		iShowImage(x_cord_b, 194, 1700, 606, a);
+		iShowImage(x_cord_b + 1700, 194, 1700, 606, a);
+		iShowImage(x_cord_lo_b, 0, 1700, 194, b);
+		iShowImage(x_cord_lo_b + 1700, 0, 1700, 194, b);
+		if (!standposs){
+			x_cord_b -= .8;
+			if (x_cord_b <= -1700)
+				x_cord_b = 0;
+			x_cord_lo_b -= 4;
+			if (x_cord_lo_b <= -1700)
+				x_cord_lo_b = 0;
+		}
+		iShowBMP2(demon_cordX, demon_cordY, main_die_showing[player_life_ind], 0);
+	}
+	else if (end_page){
+		iShowBMP2(0, 0, "bci\\end_page.bmp", 0);
+	}
+	else if (take_name){
+		iSetColor(128, 128, 128);
+		iFilledRectangle(630,340 ,300, 300);
+		showChar();
+	}
+	else if (winner_show){
+		iShowBMP(0, 0, "bci\\winner.bmp");
 	}
 	else{
 		iShowImage(x_cord_b, 194, 1700, 606, a);
@@ -836,24 +1160,41 @@ void iDraw()
 		if (blade_pl_fl){
 			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, blade_po[ind_blade_pl], 0);
 		}
-		
+		if (hiper_power1){
+			if (hiper_power_2)
+			iShowBMP2(demon_cordX, demon_cordY + demon_jump_cord_x, hbp_sho[hbp_ind], 0);
+			else
+			{
+				hbp_move += 23;
+				iShowBMP2(demon_cordX + hbp_move, demon_cordY + demon_jump_cord_x, hbp_sho_ball[hbp_ball_ind], 0);
+			}
+		}
 		//-------------------------------------------- Super power end ----- ---------------------------------------------------------------------------------
-		
+		showing_score();
+
 		if (die_enem){
 			iShowBMP2(1370, 0, die_showing[die_ind], 0);
 		}
 		enemy_1_show();
-		if (show_enemy_flag && show_third_flag==false)
-		    show_enemy();
+		for (int j = 0; j < 3; j++){
+			ene[j].enemy_cord_x -= 10;
+		}
+		if (show_enemy_flag && show_third_flag == false){
+			show_enemy(); 
+			iShowBMP2(700, 700, "bci\\level1_game.bmp", 0);
+		}
 		else if (show_third_flag && show_enemy_flag==false){
 			show_third_en();
+			iShowBMP2(700, 650, "bci\\level2_game.bmp", 0);
 		}
-		else if (show_main_flag)
-    		show_main_en();
+		else if (show_main_flag){
+			show_main_en();
+			iShowBMP2(700, 650, "bci\\level3_game.bmp", 0);
+		}
+		if (game_ind<=27)
+		iShowBMP2(30,700,lifing[game_ind],0);
 	}
 }
-
- 
 /*function iMouseMove() is called when the user presses and drags the mouse.
 (mx, my) is the position where the mouse pointer is.
 */
@@ -882,53 +1223,54 @@ void iMouse(int button, int state, int mx, int my)
 {    
 	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 644 && my <= 738)){
 		homepage = false;
+		play_ground = true;
 		musicon_home = false;
 		music_play_game();
 	}
-	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 471 && my <= 577)){
+	if (play_ground == false && homepage == true && (mx >= 752 && mx <= 1122) && (my >= 471 && my <= 577)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		homepage = false;
 		instruction_page = true;
 		cnt3=0;
 	}
-	if (instruction_page == true && (mx >= 570 && mx <= 847) && (my >= 23 && my <= 95)){
+	if (play_ground == false && instruction_page == true && (mx >= 570 && mx <= 847) && (my >= 23 && my <= 95)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		instruction_page = false;
 		homepage = true;
 		cnt4=0;
 	}
-	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 319 && my <= 405)){
+	if (play_ground == false && homepage == true && (mx >= 752 && mx <= 1122) && (my >= 319 && my <= 405)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		homepage = false;
 		high_score_page = true;
 		cnt5=0;
 	}
-	if (homepage == false  && high_score_page==true && (mx >= 1131 && mx <= 1423) && (my > 85 && my <= 223)){
+	if (play_ground == false && homepage == false && high_score_page == true && (mx >= 1131 && mx <= 1423) && (my > 85 && my <= 223)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		high_score_page = false;
 		homepage = true;
 		cnt4=0;
 	}
-	if (homepage == true && (mx >= 752 && mx <= 1122) && (my >= 151 && my <= 254)){
+	if (play_ground == false && homepage == true && (mx >= 752 && mx <= 1122) && (my >= 151 && my <= 254)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		homepage = false;
 		level_st_1= true;
 		cnt2=0;
 	}
-	if (homepage == false && (mx >= 1150 && mx <= 1418) && (my >= 44 && my <= 132)){
+	if (play_ground == false && homepage == false && (mx >= 1150 && mx <= 1418) && (my >= 44 && my <= 132)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		level_st_1 = false;
 		level_st_2 = true;
 		cnt1=0;
 	}
 	
-	if (homepage == false && level_st_1 == false && (mx >=601 && mx <= 853) && (my >= 107 &&  my<=  204)){\
+	if (play_ground == false && homepage == false && level_st_1 == false && (mx >= 601 && mx <= 853) && (my >= 107 && my <= 204)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		level_st_2 = false;
 		level_st_1 = true;
 		cnt2=0;
 	}
-	if (homepage == false && level_st_1 == true && (mx >= 101 && mx <= 308) && (my >= 46 && my <= 131)){
+	if (play_ground == false && homepage == false && level_st_1 == true && (mx >= 101 && mx <= 308) && (my >= 46 && my <= 131)){
 		PlaySound("bci\\click_sound.wav", NULL, SND_ASYNC);
 		level_st_1 = false;
 		homepage = true;
@@ -951,19 +1293,24 @@ key- holds the ASCII value of the key pressed.
 
 void iKeyboard(unsigned char key)
 {
+	if (take_name){
+		takeinput(key);
+	}
 	if (key == 'p'){
 		//fl = true;
 		standposs = true;
 	}
 	if (key == 'a'){
 		if (!blade_pl_fl){
+			mciSendString("play a.mp3", NULL, 0, 0);
 			blade_pl_fl = true;
 			fl = false;
 			standposs = false;
 		}
 	}
 	if (key == 'd'){
-		if (!thunder_fl1){
+		if (!thunder_fl1 && show_enemy_flag==false){
+			mciSendString("play thundre_power.wav", NULL, 0,0);
 			thunder_fl1 = true;
 			thunder_fl_11 = true;
 			fl = false;
@@ -972,6 +1319,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'e'){
 		if (!thunder_fl){
+			mciSendString("play electric.mp3", NULL, 0, 0);
 			thunder_fl = true;
 			thunder_fl_1 = true;
 			fl = false;
@@ -981,6 +1329,7 @@ void iKeyboard(unsigned char key)
 	if (key == 'w')
 	{
 		if (!leg_p_fl){
+			mciSendString("play w.wav",NULL,0,0);
 			leg_p_fl = true;
 			leg_p_fl_1 = true;
 			fl = false;
@@ -989,6 +1338,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 's'){
 		if (!fb_arr_fl){
+			mciSendString("play a.mp3", NULL, 0, 0);
 			fb_arr_fl = true;
 			fb_arr_fl_sr = true;
 			fl = false;
@@ -997,6 +1347,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'f'){
 		if (!vanish_bp_fl){
+			mciSendString("play f.wav", NULL, 0, 0);
 			vanish_bp_fl = true;
 			vanish_bp_fl_1 = true;
 			fl = false;
@@ -1005,6 +1356,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'v'){
 		if (!power_bb){
+			mciSendString("play v.mp3", NULL, 0, 0);
 			power_bb = true;
 			power_bb_first = true;
 			fl = false;
@@ -1013,6 +1365,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'r'){
 		if (!over_jump1){
+			mciSendString("play r.wav",NULL,0,0);
 			over_jump1 = true;
 			fl = false;
 			standposs = false;
@@ -1020,6 +1373,7 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'g'){
 		if (!dem_sur1){
+			mciSendString("play g.wav",NULL,0,0);
 			fl = false;
 			standposs = false;
 			dem_sur1 = true;
@@ -1035,12 +1389,22 @@ void iKeyboard(unsigned char key)
 	}
 	if (key == 'b'){
 		if (!demon_supra){
+			mciSendString("play b.wav",NULL,0,0);
 			demon_spup = true;
 			demon_supra = true;
 			fl = false;
 			standposs = false;
-	    } 
-    }
+		}
+	}
+	if (key == 'h'){
+		if (!hiper_power1){
+			mciSendString("play hiper_sonic.mp3", NULL, 0, 0);
+			standposs = false;
+			fl = false;
+			hiper_power1 = true;
+			hiper_power_2 = true;
+		}
+	}
 }
 
 /*
@@ -1102,8 +1466,40 @@ void iSpecialKeyboard(unsigned char key)
 		b = 255;
 	}
 }
-
+void dieing(){
+	if (die_flag){
+		player_life_ind++;
+	}
+	if (player_life_ind >=8){
+		end_page = true;
+		play_ground = false;
+		player_life_ind = 0;
+		die_flag = false;
+	}
+}
+bool hyper_balls = false;
+int take_iput_name = 0;
 void change(){
+	if (end_page){
+		take_iput_name++;
+	}
+	if (take_iput_name >= 25){
+		take_name = true;
+		end_page = false;
+		take_iput_name = 0;
+	}
+	if (fir_ene_cnt >= 4){
+		fir_ene_cnt = 0;
+		if (game_ind <= 26)
+		game_ind+=2;
+	}
+	if (main_life_ene_cnt >= 9){
+		winner_show = true;
+	}
+	if (game_ind >= 27){
+		die_flag = true;
+		game_ind = 0;
+	}
 	if (show_main_cnt >= 9){
 		show_main_flag = true;
 		show_third_flag = false;
@@ -1137,8 +1533,7 @@ void change(){
 		run_back_ind++;
 	}
 	for (int i = 0; i < 3; i++){
-		ene[i].enemy_cord_x -=100;
-		if (ene[i].enemy_cord_x < 0){
+		if (ene[i].enemy_cord_x <=0){
 			ene[i].enemy_show = true;
 			ene[i].enemy_cord_x = 1700+(500*i);
 		ene[i].enemy_cord_y =(rand() % 650)+(rand()%50);
@@ -1432,6 +1827,22 @@ void change(){
 	if (run_back_ind >= 6){
 		run_back_ind = 0;
 	}
+	if (hbp_ind >= 7){
+		hbp_ind = 0;
+		hiper_power_2 = false;
+		hyper_balls = true;
+	}
+	if (hyper_balls){
+		hbp_ball_ind++;
+	}
+	if (hbp_ball_ind>=4){
+    	fl = true;
+		hbp_move = 15;
+		hiper_power1 = false;
+		hiper_power_2 = false;
+		hyper_balls = false;
+		hbp_ball_ind = 0;
+	}
 }
 
 void showing_eme(){
@@ -1464,7 +1875,7 @@ void emy_2_cha(){
 				obj1[0].fl = true;
 				enemy_ball_2 = 0;
 				obj2[0].ind = 0;
-				obj1[0].y = rand() % 650;
+				obj1[0].y = rand() % 570;
 				obj2[0].bl = false;
 			}
 		}
@@ -1482,7 +1893,7 @@ void emy_main_cha(){
 		}
 	}
 	else{
-		obj4[0].ind++;
+		obj4[0].ind+=2;
 		if (obj4[0].ind >= 3){
 			obj3[0].fl = true;
 			enemy_ball_2_m = 0;
@@ -1512,6 +1923,11 @@ void emy_3_cha(){
 		}
 	}
 }
+void hiper_fire_b(){
+	if (hiper_power_2){
+		hbp_ind++;
+	}
+}
 int main()
 {
 	ene_main_fix();
@@ -1519,8 +1935,10 @@ int main()
 	showing_eme();
 	iSetTimer(200, change);
 	iSetTimer(500, emy_2_cha);
-	iSetTimer(330, emy_main_cha);
+	iSetTimer(400, emy_main_cha);
 	iSetTimer(300, emy_3_cha);
+	iSetTimer(700,dieing);
+	iSetTimer(200,hiper_fire_b);
 	iInitialize(1700, 800,"hills");
 	a = iLoadImage("./bci/backgr1.jpg");
 	b = iLoadImage("./bci/bg_lower.jpg");
