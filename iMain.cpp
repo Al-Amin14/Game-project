@@ -34,6 +34,8 @@ int hbp_ball_ind = 0;
 bool play_ground = false;
 char str1[40];
 bool take_name = false;
+int len=0;
+bool high_score_page = false;
 void showChar()
 {
 	iSetColor(255, 0, 0);
@@ -131,7 +133,31 @@ void showing_score(){
 	sprintf_s(point, "%d", o1.score);
 	iText(1142, 755, point, GLUT_BITMAP_TIMES_ROMAN_24);
 }
-
+void takeinput(unsigned char key){
+	if (key == 'p'){
+		exit(0);
+	}
+	if (key == '\r'){
+		strcpy(o1.name, str1);
+		high_page_sorting();
+		high_score_page = true;
+	}
+	else if (key == '\b'){
+		if (len <= 0){
+			len = 0;
+		}
+		else
+			len--;
+		str1[len] = '\0';
+	}
+	else{
+		str1[len] = key;
+		len++;
+		if (len > 15){
+			len = 15;
+		}str1[len] = '\0';
+	}
+}
 //-------------------------------------------------------Scoring End------------------------------------------------------------------------------
 
 
@@ -250,7 +276,6 @@ bool level_st_2 = false;
 bool level_st_1 = false;
 bool instruction_page = false;
 bool homepage =true;
-bool high_score_page = false;
 bool musicon_home = true;
 bool music_game = false;
 int cnt = 0;
@@ -980,7 +1005,6 @@ void show_third_en(){
 }
 
 //______________________________________________________________End of 3 ene collition_______________________________________________________________________
-int len;
 bool die_flag = false;
 bool end_page = false;
 void takeinput(unsigned key){
